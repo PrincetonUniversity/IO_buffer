@@ -27,7 +27,7 @@ private:
 
   filer();
 
-  std::fstream datei;
+  std::fstream file;
 
   size_t size;
 
