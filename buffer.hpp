@@ -4,15 +4,16 @@
 #include <iostream>
 #include <fstream>
 #
-template <class T, size_t nblock> 
+template <class T> 
 class filer{  
 public:
  
-  static const size_t chunk_size = nblock * sizeof(T);
-
   // create filer object associated with file "filename"
+  // and blocksize nb
   // rewrite file if append=false, otherwise reopen file
-  filer( const std::string& filename, bool append = false );
+  filer( const std::string& filename, 
+	 sze_t nb,
+	 bool append = false );
   ~filer(){};
 
   // read a chunk at pos, exception if pos > filesize
@@ -24,6 +25,10 @@ public:
   size_t filesize(){ return size; };
 
 private:
+
+  size_t nblock;
+
+  size_t chunk_size;
 
   filer();
 

@@ -9,14 +9,34 @@
 
 class 
 
-template <class T, size_t nblock, mem_policy = policy_LiFo >
+struct node{
+    enum status_type {modified, empty, loaded, stored, free};
+
+    status_type status;
+    
+    chunk data;
+
+    size_t pos;
+
+    int file_id;
+
+    node():
+	status(empty),
+	data()
+	{}
+};
+
+typedef std::shared_ptr<node> p_node;
+
+template <class T, class pool >
 class mapper{
 
 public:
 
   mapper(std::string bufferfile,
-	 mem_policy m):
+	 std::shared_ptr<pool> m):
     mp(m),
+    nblock(m->nblock()),
     file_data(bufferfile.c_str()),
     max_p_in_mem( pages_in_memory)
   {}  
@@ -28,32 +48,27 @@ public:
 
   void flush(){ write_buffers_();}
 
+// API with pool
+
+  void release_node(p_node);
+
 private:
 
   mem_policy mp;
 
+  size_t nblock;
+
   typedef std::vector<T> chunk;
 
-  filer<T,nblock> file_data;
-
-  struct node{
-    enum status_type {modified, empty, loaded, stored};
-
-    status_type status;
-    
-    chunk data;
-
-    node():
-      status(empty),
-      data()
-    {}
-  };
+  filer<T> file_data;
   
   std::list<size_t> in_memory;
 
   size_t max_p_in_mem;
 
-  std::unordered_map<size_t,node> nodes;  
+  std::vector<node> nodes;  
+
+ 
 
   // return reference to container that is no longer needed
   chunk& pop_memory(){
@@ -77,26 +92,29 @@ private:
 
   // find node
   node& get_node( size_t index ){
-    node& cn(nodes[index]);    
-    // if cn.data already associated, we do not need to do anything more
-    if (cn.data.size()) 
+      if (index >= nodes.size())
+	  nodes.resize(index+20);
+
+      node& cn(nodes[index]);    
+      // if cn.data already associated, we do not need to do anything more
+      if (cn.data.size()) 
+	  return cn;
+      
+      // get memory
+      mem_policy.get_memory(cn.data);
+
+      if (cn.status == node::stored){
+	  // load it from disk if it is on disk
+	  file_data.read_chunk(index, &(cn.data[0]));
+      }else{
+	  // blank the memory, as it still contains swapped-out block
+	  std::fill(cn.data.begin(), cn.data.end(), 0);
+      }
+
+      cn.status=node::loaded;
+      in_memory.push_front(index);
+
       return cn;
-
-    // get memory
-    mem_policy.get_memory(cn.data);
-
-    if (cn.status == node::stored){
-      // load it from disk if it is on disk
-      file_data.read_chunk(index, &(cn.data[0]));
-    }else{
-      // blank the memory, as it still contains swapped-out block
-      std::fill(cn.data.begin(), cn.data.end(), 0);
-    }
-
-    cn.status=node::loaded;
-    in_memory.push_front(index);
-
-    return cn;
   }
 
   // change value at pos to t

@@ -1,9 +1,12 @@
 #include "buffer.hpp"
 #include <vector>
 
-template <class T, size_t nblock>
-filer<T, nblock>::filer( const std::string& filename,
-			     bool append)
+template <class T>
+filer<T>::filer( const std::string& filename,
+		 size_t nblock,
+		 bool append):
+    nblock(nb),
+    chunk_size(nblock * sizeof(T))
 {
   using namespace std;
   if (append){
@@ -24,8 +27,8 @@ filer<T, nblock>::filer( const std::string& filename,
   }
 }
 
-template <class T, size_t nblock>
-void filer<T, nblock>::read_chunk( size_t pos, T* d){
+template <class T>
+void filer<T>::read_chunk( size_t pos, T* d){
 
   if (pos >= size)
     throw 
@@ -41,8 +44,8 @@ void filer<T, nblock>::read_chunk( size_t pos, T* d){
       "filer:read_chunk: IO-Error");   
 }
 
-template <class T, size_t nblock>
-void filer<T, nblock>::write_chunk( size_t pos,
+template <class T >
+void filer<T>::write_chunk( size_t pos,
 				    const T* d){
 
   if (size <= pos){
