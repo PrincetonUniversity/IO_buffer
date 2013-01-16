@@ -1,13 +1,13 @@
 #ifndef FORTRAN_API_DEF
 #define FORTRAN_API_DEF
 
-#define FINT long long; 
+#define FINT long long 
 
 extern "C" 
 void for_buf_construct( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id );
 
 extern "C" 
-void for_buf_openfile( const FINT& pool_id, const FINT& unit, const int& length, const char* filename);
+void for_buf_openfile( const FINT& pool_id, const FINT& unit, const char* filename, const int& length);
 
 extern "C"
 void for_buf_writeElement( const FINT& unit, const FINT& pos, const double& value, const FINT& threadnum);
@@ -27,8 +27,13 @@ void for_buf_removefile( const FINT& unit);
 extern "C"
 void for_buf_flushfile( const FINT& unit);
 
+// close pool, free all memory, write all buffers to the file
 extern "C" 
 void for_buf_closepool( const FINT& pool_id );
+
+// close pool, free all memory, erase all files
+extern "C" 
+void for_buf_removepool( const FINT& pool_id );
 
 // flush all files
 extern "C"

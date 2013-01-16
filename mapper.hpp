@@ -7,23 +7,27 @@
 #include <unordered_map>
 #include "buffer.hpp"
 
-class 
-
 struct node{
-    enum status_type {modified, empty, loaded, stored, free};
 
-    status_type status;
+  typedef std::vector<T> chunk;
+
+  enum status_type {modified, empty, loaded, stored, free};
+  
+  status_type status;
     
-    chunk data;
+  chunk data;
 
-    size_t pos;
+  size_t unit;
 
-    int file_id;
+  size_t index;
 
-    node():
-	status(empty),
-	data()
-	{}
+  bool locked;
+
+  node():
+    status(empty),
+    data()
+    
+  {}
 };
 
 typedef std::shared_ptr<node> p_node;
@@ -35,10 +39,9 @@ public:
 
   mapper(std::string bufferfile,
 	 std::shared_ptr<pool> m):
-    mp(m),
-    nblock(m->nblock()),
-    file_data(bufferfile.c_str()),
-    max_p_in_mem( pages_in_memory)
+    my_pool(m),
+    nblock(mp->nblock()),
+    file_data(bufferfile.c_str(), nblock)
   {}  
 
   ~mapper(){ write_buffers_();}
@@ -50,15 +53,15 @@ public:
 
 // API with pool
 
-  void release_node(p_node);
+  void release_node(p_node p){ release_node_(p)};
 
 private:
 
-  mem_policy mp;
-
   size_t nblock;
 
-  typedef std::vector<T> chunk;
+  std::shared_ptr<pool> my_pool;
+
+  size_t nblock;
 
   filer<T> file_data;
   
@@ -68,7 +71,17 @@ private:
 
   std::vector<node> nodes;  
 
- 
+  void release_node_( p_node p ){
+    node& cn(nodes[pos]);
+    // if it is modified, need to write changes
+    if (cn.status==node::modified)
+      file_data.write_chunk(in_memory.back(),&cn.data[0]);
+    cn.status=node::stored;
+    // remove entry from list
+    in_memory.pop_back();
+    
+    return cn.data;    
+  }
 
   // return reference to container that is no longer needed
   chunk& pop_memory(){

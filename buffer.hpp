@@ -3,16 +3,19 @@
 
 #include <iostream>
 #include <fstream>
-#
+
+
 template <class T> 
+
 class filer{  
 public:
- 
+
   // create filer object associated with file "filename"
   // and blocksize nb
   // rewrite file if append=false, otherwise reopen file
+
   filer( const std::string& filename, 
-	 sze_t nb,
+	 size_t nb,
 	 bool append = false );
   ~filer(){};
 
@@ -32,7 +35,11 @@ private:
 
   filer();
 
-  std::fstream file;
+  size_t nblock;
+
+  size_t chunk_size;
+
+  std::fstream ffile;
 
   size_t size;
 
