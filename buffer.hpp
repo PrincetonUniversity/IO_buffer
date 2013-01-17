@@ -29,10 +29,6 @@ public:
 
 private:
 
-  size_t nblock;
-
-  size_t chunk_size;
-
   filer();
 
   size_t nblock;

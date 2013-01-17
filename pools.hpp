@@ -11,18 +11,22 @@
 	  */
 
 
-class default_pool{
+
+template <class T>
+class mem_pool{
 
 public:
 
-  void return_node(p_node);
+  void return_node(chunk&);
 
+  void request_node(p_node);
 private:
 
   size_t  max_p_in_mem;
   
-  
+  std::list<p_node> free_nodes;
 
+  std::list<p_node> used_nodes;
 };
 
 #endif

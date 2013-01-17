@@ -7,9 +7,11 @@
 #include <unordered_map>
 #include "buffer.hpp"
 
+template< class T >
 struct node{
 
   typedef std::vector<T> chunk;
+  typedef std::shared_ptr<node> p_node;
 
   enum status_type {modified, empty, loaded, stored, free};
   
@@ -30,17 +32,18 @@ struct node{
   {}
 };
 
-typedef std::shared_ptr<node> p_node;
-
-template <class T, class pool >
+template <class T, template<class> class tpolicy >
 class mapper{
 
 public:
 
+  typedef node<T>::p_node p_node;
+  typedef node<T>::chunk chunk;
+ 
   mapper(std::string bufferfile,
-	 std::shared_ptr<pool> m):
-    my_pool(m),
-    nblock(mp->nblock()),
+	 tpolicy m):
+    policy(m),
+    nblock(policy->nblock()),
     file_data(bufferfile.c_str(), nblock)
   {}  
 
@@ -53,58 +56,41 @@ public:
 
 // API with pool
 
-  void release_node(p_node p){ release_node_(p)};
+  chunk&& release_chunk( size_t pos ){ return release_chunk_(pos)};
 
 private:
-
-  size_t nblock;
-
-  std::shared_ptr<pool> my_pool;
+ 
+  tpolicy policy;
 
   size_t nblock;
 
   filer<T> file_data;
   
-  std::list<size_t> in_memory;
-
   size_t max_p_in_mem;
 
   std::vector<node> nodes;  
 
-  void release_node_( p_node p ){
+  chunk&& release_chunk_(size_t pos){
     node& cn(nodes[pos]);
     // if it is modified, need to write changes
-    if (cn.status==node::modified)
-      file_data.write_chunk(in_memory.back(),&cn.data[0]);
-    cn.status=node::stored;
-    // remove entry from list
-    in_memory.pop_back();
-    
-    return cn.data;    
+    if (p->status==node::modified)
+      file_data.write_chunk(pos,&p->data[0]);
+    pn->status=node::stored;
+    chunk c;
+    c.swap(cn.data);
+    return std::move(c);    
   }
 
-  // return reference to container that is no longer needed
-  chunk& pop_memory(){
-    // find node associated with that memory
-    node& cn(nodes[in_memory.back()]);
-    // if it is modified, need to write changes
-    if (cn.status==node::modified)
-      file_data.write_chunk(in_memory.back(),&cn.data[0]);
-    // swap cn.data with empty new container
-    cn.status=node::stored;
-    // remove entry from list
-    in_memory.pop_back();
-    return cn.data;
-  };
 
   // write all buffers to file, free all the memory
   void write_buffers_(){    
-    while (in_memory.size()) 
-      pop_memory().resize(0);
+    policy.return_all_mem();
   };
 
   // find node
   node& get_node( size_t index ){
+    // if too small nodes, then resize to a bit larger, 
+    // to avoid much resizing in the beginning
       if (index >= nodes.size())
 	  nodes.resize(index+20);
 
@@ -113,8 +99,8 @@ private:
       if (cn.data.size()) 
 	  return cn;
       
-      // get memory
-      mem_policy.get_memory(cn.data);
+      // get chunk of memory
+      cn.data = policy.get_memory(index);
 
       if (cn.status == node::stored){
 	  // load it from disk if it is on disk
@@ -125,7 +111,6 @@ private:
       }
 
       cn.status=node::loaded;
-      in_memory.push_front(index);
 
       return cn;
   }
@@ -147,6 +132,58 @@ private:
 
     return get_node(index).data[offset];
   };
+};
+
+// This very simple policy implements a single last-in-first-out
+// memory model, with a max memory footprint of max_in_mem chunks
+
+template< class T >
+class policy_LiFo{
+public:
+  typedef node<T>::chunk chunk;
+ 
+  policy_LiFo(mapper<T, policy_LiFo> m,
+	      size_t max_in_mem, 
+	      size_t nblock): 
+    m_(m)
+    max_in_mem_(max_in_mem),
+    nblock_(nblock),
+  {}; 
+
+  // free all memory owned by  
+  void return_all_mem(){ return_all_mem_();};
+
+  // get a chunk of memory for buffer, at pos
+  void get_memory(size_t pos, chunk& d){ 
+    get_memory_(pos, d);}
+
+  size_t nblock(){ return nblock_;}
+ 
+private:
+  policy_LiFo();
+
+  mapper<T, policy_LiFo>* m_;
+
+  std::list<size_t> in_memory;
+
+  size_t nblock_;
+  size_t max_in_mem_;
+
+  void return_all_mem_(){ 
+    while (in_memory.size()) 
+      m_->release_chunk(in_memory.pop_back());
+  }
+
+  chunk&& get_memory_(size_t pos){ 
+    in_memory.push_front(pos); 
+    if ( in_memory.size() < max_in_mem_){
+      chunk c(nblock_,0);
+      // std::move avoids unnecessary copies
+      return std::move(c);
+    }else{
+      return m_->release_chunk(in_memory.pop_back());
+    }
+  }
 };
 
 #endif
