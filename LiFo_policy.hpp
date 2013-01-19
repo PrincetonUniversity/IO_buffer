@@ -64,7 +64,7 @@ private:
     return max_in_mem() - 2 * nthread_;
   };
 
-  chunk&& find_memory(size_t threadnum) override{
+  chunk&& find_memory(size_t threadnum) OVERRIDE{
     if ( in_memory.size() < navail() ){
       return std::move(chunk(abstract_policy<T>::chunk_size(),0));
     }else{
@@ -115,7 +115,7 @@ private:
   using policy_list<T>::unused_chunks;
   using policy_list<T>::max_in_mem;
 
-  chunk&& find_memory(size_t) override{
+  chunk&& find_memory(size_t) OVERRIDE{
     if ( in_memory.size() < max_in_mem()){
       chunk c(abstract_policy<T>::chunk_size(),0);
       // std::move avoids unnecessary copies

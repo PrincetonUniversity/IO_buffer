@@ -4,6 +4,13 @@
 #include "mapper.hpp"
 #include <algorithm>
 
+// ICPC does not support override at the moment, so we only use it with g++
+#ifdef __GNUC__
+#define OVERRIDE override
+#else
+#define OVERRIDE 
+#endif
+
 // This very simple policy implements a single last-in-first-out
 // memory model, with a max memory footprint of max_in_mem chunks
 
@@ -46,14 +53,14 @@ private:
 
   size_t max_in_mem_;
 
-  void sync_() override{
+  void sync_() OVERRIDE{
         std::for_each(in_memory.begin(), in_memory.end(), 
     		  [this](chunkindex& ci){
     		    this->get_mapper(ci.i_mapper)->sync(ci.i_chunk);
     		      });
   }
  
-  void sync_(size_t index) override{
+  void sync_(size_t index) OVERRIDE{
     p_mapper pm(get_mapper(index));
     std::for_each(in_memory.begin(), in_memory.end(), 
 		  [index, pm](chunkindex& ci){
@@ -62,7 +69,7 @@ private:
 		  });
   }
  
-  void return_all_mem_(bool save) override { 
+  void return_all_mem_(bool save) OVERRIDE { 
     while (in_memory.size()) {
       const chunkindex& ci(in_memory.back());
       auto pm(get_mapper(ci.i_mapper));      
@@ -71,9 +78,9 @@ private:
     }
   }
 
-  void return_all_mem_(size_t index, bool save) override { 
+  void return_all_mem_(size_t index, bool save) OVERRIDE { 
     p_mapper pm( get_mapper(index));
-        in_memory.remove_if( [index, this, pm, save](chunkindex& ci){
+        in_memory.remove_if( [index, this, pm, save](chunkindex& ci) -> bool{
     	if (ci.i_mapper == index){
     	  unused_chunks.push_back(pm->release_chunk(ci.i_chunk, save));
     	  return true;
@@ -83,7 +90,7 @@ private:
 
   virtual chunk&&  find_memory(size_t) = 0;
 
-  chunk&& get_memory_(size_t index, size_t pos, size_t threadnum) override{ 
+  chunk&& get_memory_(size_t index, size_t pos, size_t threadnum) OVERRIDE{ 
     in_memory.push_front(chunkindex(index,pos)); 
     if (unused_chunks.size()){
       chunk&& cn(std::move(unused_chunks.back()));
