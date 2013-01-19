@@ -2,44 +2,45 @@
 #include <vector>
 
 template <class T>
-filer<T>::filer( const std::string& filename,
+filer<T>::filer( const std::string& file_name,
 		 size_t nb,
 		 bool append):
-  nblock(nb),
-  chunk_size(nblock * sizeof(T))
+  filename_(file_name),
+  nblock_(nb),
+  chunk_size_(nblock_ * sizeof(T))
 {
   using namespace std;
   if (append){
-    ffile.open(filename.c_str(), 
+    ffile_.open(filename().c_str(), 
 	       ios_base::binary | ios_base::in | ios_base::out);
     // go to end of file
-    ffile.seekg(0,ios_base::end);
+    ffile_.seekg(0,ios_base::end);
     // get file size
-    size=ffile.tellg() / this->chunk_size;
-    if (ffile.tellg() % this->chunk_size) 
+    size_=ffile_.tellg() / this->chunk_size_;
+    if (ffile_.tellg() % this->chunk_size_) 
 	throw ios_base::failure(
 	   "Filer::filer: File contains non-integer multiple of chunk size");   
   }else{
     // ignore file if it exists (ios_base::trunc) 
-    ffile.open(filename.c_str(), ios_base::binary | ios_base::in | 
+    ffile_.open(filename().c_str(), ios_base::binary | ios_base::in | 
 	       ios_base::out | ios_base::trunc );
-    size=0;
+    size_=0;
   }
 }
 
 template <class T>
 void filer<T>::read_chunk( size_t pos, T* d){
 
-  if (pos >= size)
+  if (pos >= size_)
     throw 
       std::ios_base::failure(
 	    "Filer:read_chunk: pos exceeds file size in reading.");
 
-  size_t p( pos * chunk_size);
-  ffile.seekg( p );
+  size_t p( pos * chunk_size_);
+  ffile_.seekg( p );
 
-  ffile.read((char*)d, chunk_size );
-  if (ffile.bad())
+  ffile_.read((char*)d, chunk_size_ );
+  if (ffile_.bad())
     throw std::ios_base::failure(
       "filer:read_chunk: IO-Error");   
 }
@@ -48,23 +49,23 @@ template <class T>
 void filer<T>::write_chunk( size_t pos,
 			    const T* d){
 
-  if (size <= pos){
-    size_t missing(pos - size); 
+  if (size_ <= pos){
+    size_t missing(pos - size_); 
     // if size=pos I do not need to write intermediates
-    ffile.seekp( size * chunk_size ); // current end of file
-    std::vector<T> empty(nblock,0);
+    ffile_.seekp( size_ * chunk_size_ ); // current end of file
+    std::vector<T> empty(nblock_,0);
     for (size_t i=0;i < missing; ++i)
-      ffile.write((char*)&empty[0], chunk_size );
-    size = pos+1;
+      ffile_.write((char*)&empty[0], chunk_size_ );
+    size_ = pos+1;
   }else{
-    ffile.seekp( pos * chunk_size );
+    ffile_.seekp( pos * chunk_size_ );
   }
 
-  ffile.write((char*)d, chunk_size );
-  if (ffile.bad())
+  ffile_.write((char*)d, chunk_size_ );
+  if (ffile_.bad())
     throw std::ios_base::failure(
       "filer:write_chunk: IO-Error");   
 
-  ffile.flush();
+  ffile_.flush();
 }
 

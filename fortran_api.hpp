@@ -27,6 +27,14 @@ void for_buf_removefile( const FINT& unit);
 extern "C"
 void for_buf_flushfile( const FINT& unit);
 
+// write all chunks to file
+extern "C"
+void for_buf_syncfile( const FINT& unit);
+
+// write all chunks for all open files in pool to file
+extern "C"
+void for_buf_syncfile( const FINT& pool_id);
+
 // close pool, free all memory, write all buffers to the file
 extern "C" 
 void for_buf_closepool( const FINT& pool_id );

@@ -1,8 +1,6 @@
 #include "fortran_api.hpp"
 
-// class to handle fortran API
-
-// Now define the API functions
+#include "fortranAPI_handler.hpp"
 
 #include <iostream>
 
@@ -15,6 +13,11 @@ void for_buf_construct( const FINT& maxmem, const FINT& blocksize, const FINT& s
 	    << "blocksize     =" << blocksize << '\n'
 	    << "storagepolicy =" << storagepolicy << '\n'
             << "nthread       =" << nthread << '\n';
+
+  pool_id = fortranapi::get().construct(maxmem, 
+					blocksize, 
+					storagepolicy, 
+					nthread);
 
 }
 
@@ -31,6 +34,8 @@ void for_buf_openfile( const FINT& pool_id, const FINT& unit, const char* filena
 	    << "filename =" << fn << '\n'
             << "length   =" << length << '\n';
 
+  fortranapi::get().openfile(pool_id, unit, fn);
+
 }
 
 extern "C"
@@ -43,6 +48,8 @@ void for_buf_writeElement( const FINT& unit, const FINT& pos, const double& valu
 	    << "value    =" << value << '\n'
             << "threadnum=" << threadnum << '\n';
 
+
+  fortranapi::get().writeElement(unit, pos, value, threadnum);
 }
 
 extern "C"
@@ -54,6 +61,7 @@ void for_buf_readElement( const FINT& unit, const FINT& pos, double& value, cons
 	     << "pos      =" << pos << '\n'
 	     << "threadnum=" << threadnum << '\n';
 
+  value = fortranapi::get().readElement(unit, pos, threadnum);
 }
 
 // close file, flush before closing
@@ -63,6 +71,8 @@ void for_buf_closefile( const FINT& unit){
   std::cout << "Called for_buf_closefile\n";
 
   std::cout << "unit     =" << unit << '\n';
+
+  fortranapi::get().closefile(unit);
 }
 
 // delete file, free memory, no flush
@@ -72,6 +82,8 @@ void for_buf_removefile( const FINT& unit){
   std::cout << "Called for_buf_removefile\n";
 
   std::cout << "unit     =" << unit << '\n';
+
+  fortranapi::get().removefile(unit);
 }
 
 // write all buffers to file
@@ -81,6 +93,30 @@ void for_buf_flushfile( const FINT& unit){
   std::cout << "Called for_buf_flushfile\n";
 
   std::cout << "unit     =" << unit << '\n';
+
+  fortranapi::get().flushfile(unit);
+}
+
+// sync all buffers to file
+extern "C"
+void for_buf_syncfile( const FINT& unit){
+
+  std::cout << "Called for_buf_syncfile\n";
+
+  std::cout << "unit     =" << unit << '\n';
+
+  fortranapi::get().syncfile(unit);
+}
+
+// sync all buffers to file
+extern "C"
+void for_buf_syncpool( const FINT& pool_id){
+
+  std::cout << "Called for_buf_syncpool\n";
+
+  std::cout << "unit     =" << pool_id << '\n';
+
+  fortranapi::get().syncpool(pool_id);
 }
 
 // close pool, free all memory, write all buffers to the file
@@ -90,6 +126,8 @@ void for_buf_closepool( const FINT& pool_id ){
   std::cout << "Called for_buf_closepool\n";
 
   std::cout << "pool_id     =" << pool_id << '\n';
+
+  fortranapi::get().closepool(pool_id);
 }
 
 // close pool, free all memory, erase all files
@@ -99,6 +137,8 @@ void for_buf_removepool( const FINT& pool_id ){
   std::cout << "Called for_buf_removepool\n";
 
   std::cout << "pool_id     =" << pool_id << '\n';
+
+  fortranapi::get().removepool(pool_id);
 }
 
 // flush all files
@@ -108,4 +148,6 @@ void for_buf_flushall( const FINT& pool_id ){
   std::cout << "Called for_buf_flushall\n";
 
   std::cout << "pool_id     =" << pool_id << '\n';
+
+  fortranapi::get().flushpool(pool_id);
 }
