@@ -6,7 +6,12 @@ TEMPLATES = buffer.tpp
 
 OBJECTS = $(SOURCES:%.cpp=%.o)
 
+MACHINE = $(shell uname -n)
+ifeq ($(MACHINE),tiger2)
+CPP=icpc
+else
 CPP=g++
+endif
 
 CFLAGS= -std=c++11 -Wall -Wextra -g -pedantic
 

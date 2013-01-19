@@ -5,10 +5,10 @@
 #include <algorithm>
 
 // ICPC does not support override at the moment, so we only use it with g++
-#ifdef __GNUC__
-#define OVERRIDE override
+#ifdef __INTEL_COMPILER
+#define OVERRIDE  
 #else
-#define OVERRIDE 
+#define OVERRIDE override
 #endif
 
 // This very simple policy implements a single last-in-first-out
