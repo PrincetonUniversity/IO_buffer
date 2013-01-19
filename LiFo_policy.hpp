@@ -39,9 +39,9 @@ public:
   using abstract_policy<T>::get_mapper;
 
   policy_LiFo(size_t max_in_mem, 
-	      size_t nblock,
+	      size_t chunk_size,
 	      size_t nthread): 
-    policy_list<T>(max_in_mem, nblock),
+    policy_list<T>(max_in_mem, chunk_size),
     nthread_(nthread),
     threadswap(2*nthread, chunkindex(std::string::npos, std::string::npos))
   {
@@ -64,10 +64,13 @@ private:
     return max_in_mem() - 2 * nthread_;
   };
 
-  chunk&& find_memory(int threadnum) override{
+  chunk&& find_memory(size_t threadnum) override{
     if ( in_memory.size() < navail() ){
-      return std::move(chunk(abstract_policy<T>::nblock(),0));
+      return std::move(chunk(abstract_policy<T>::chunk_size(),0));
     }else{
+
+      if (threadnum >= nthread_)
+	throw E_Policy_error("LiFo_policy:find_memory: Threadnum invalid!");
 
       chunkindex ci(threadswap[threadnum*2]);
       threadswap[threadnum*2] = threadswap[threadnum*2+1];
@@ -78,7 +81,7 @@ private:
       //check if ci has never been used and thus still contains npos
 
       if (ci.i_mapper == std::string::npos){
-	return std::move(chunk(abstract_policy<T>::nblock(),0));
+	return std::move(chunk(abstract_policy<T>::chunk_size(),0));
       }else{
 	auto pm(get_mapper(ci.i_mapper));
 	return pm->release_chunk(ci.i_chunk);
@@ -96,8 +99,8 @@ public:
   using abstract_policy<T>::get_mapper;
 
   policy_LiLo(size_t max_in_mem, 
-	      size_t nblock): 
-    policy_list<T>(max_in_mem, nblock)
+	      size_t chunk_size): 
+    policy_list<T>(max_in_mem, chunk_size)
   {}; 
 
   ~policy_LiLo(){
@@ -112,9 +115,9 @@ private:
   using policy_list<T>::unused_chunks;
   using policy_list<T>::max_in_mem;
 
-  chunk&& find_memory(int) override{
+  chunk&& find_memory(size_t) override{
     if ( in_memory.size() < max_in_mem()){
-      chunk c(abstract_policy<T>::nblock(),0);
+      chunk c(abstract_policy<T>::chunk_size(),0);
       // std::move avoids unnecessary copies
       return std::move(c);
     }else{

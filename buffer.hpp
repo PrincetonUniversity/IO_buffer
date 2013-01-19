@@ -35,9 +35,9 @@ private:
 
   std::string filename_;
 
-  size_t nblock_;
-
   size_t chunk_size_;
+
+  size_t chunk_byte_size_;
 
   std::fstream ffile_;
 

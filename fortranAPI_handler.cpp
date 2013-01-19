@@ -6,7 +6,7 @@
 
 p_abstract_policy fortranapi::getpolicy( FINT pool_id ){
 
-  if (pool_id >= pools.size())
+  if (static_cast<size_t>(pool_id) >= pools.size())
     throw E_invalid_pool_id(pool_id);
 
   p_abstract_policy pp( pools[pool_id]);

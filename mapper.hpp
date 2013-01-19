@@ -55,11 +55,11 @@ public:
   typedef typename node<T>::chunk chunk;
   typedef std::shared_ptr<mapper<T> > p_mapper;
  
-  abstract_policy(size_t nblock): 
-    nblock_(nblock)
+  abstract_policy(size_t chunk_size): 
+    chunk_size_(chunk_size)
   {}; 
 
-  size_t nblock(){ return nblock_;}
+  size_t chunk_size(){ return chunk_size_;}
 
   // keep track of mapper, assign index i
   // return assigned index
@@ -85,7 +85,7 @@ public:
   // get a chunk of memory for buffer, at pos
   chunk&& get_memory(size_t index,
 		     size_t pos,
-		     int threadnum){ return get_memory_(index,pos,threadnum); };
+		     size_t threadnum){ return get_memory_(index,pos,threadnum); };
 
   size_t mapper_count(){ return mappers.size();};
 
@@ -106,7 +106,7 @@ protected:
 
 private:  
 
-  size_t nblock_;
+  size_t chunk_size_;
 
   virtual void sync_(size_t) = 0;
 
@@ -118,7 +118,7 @@ private:
 
   virtual chunk&& get_memory_(size_t index, 
 			      size_t pos, 
-			      int threadnum) = 0;
+			      size_t threadnum) = 0;
 
   void remove_mapper_(size_t index, bool save){
     if (!mappers[index]) return;
@@ -152,8 +152,8 @@ public:
  
   ~mapper(){ policy.lock()->return_all_mem(my_index);};
 
-  void set(size_t pos, const T& t, int threadnum) { set_(pos, t, threadnum);};
-  T get(size_t pos, int threadnum) { return get_(pos, threadnum);};  
+  void set(size_t pos, const T& t, size_t threadnum) { set_(pos, t, threadnum);};
+  T get(size_t pos, size_t threadnum) { return get_(pos, threadnum);};  
 
   // write all buffers to disk
   void flush(){ write_buffers_(true);};
@@ -181,7 +181,7 @@ public:
   
 private:
  
-  size_t nblock;
+  size_t chunk_size;
 
   filer<T> file_data;  
   
@@ -192,8 +192,8 @@ private:
   mapper(std::string bufferfile,
 	 p_abstract_policy m):
     policy(m),
-    nblock(m->nblock()),
-    file_data(bufferfile.c_str(), nblock)
+    chunk_size(m->chunk_size()),
+    file_data(bufferfile.c_str(), chunk_size)
   {};    
 
   void sync_chunk_( size_t chunk_index){
@@ -220,7 +220,9 @@ private:
   };
 
   // find node
-  node<T>& get_node( size_t chunk_index, int thread_num ){
+  node<T>& get_node( size_t chunk_index, size_t thread_num ){
+      std::cerr << "Haaoaue?\n";
+      std::cerr.flush();
     // if too small nodes, then resize to a bit larger, 
     // to avoid much resizing in the beginning
       if (chunk_index >= nodes.size())
@@ -232,7 +234,12 @@ private:
 	  return cn;
       
       // get chunk of memory
+      p_abstract_policy pp(policy.lock());
+
+      if (!pp)
+	std::cerr << "No policy ! \n";
       cn.data = policy.lock()->get_memory(my_index, chunk_index, thread_num);
+      std::cerr << "noCrash\n";
 
       if (cn.status == node<T>::stored){
 	  // load it from disk if it is on disk
@@ -248,9 +255,13 @@ private:
   };
 
   // change value at pos to t
-  void set_(size_t pos, const T& t, int threadnum){
-    size_t index=pos / nblock;
-    size_t offset=pos%nblock;
+  void set_(size_t pos, const T& t, size_t threadnum){
+    std::cerr << "set_, " << pos << ' ' << t << ' ' << threadnum << '\n';
+
+    size_t index=pos / chunk_size;
+    size_t offset=pos%chunk_size;
+
+    std::cerr << "set_, " << pos << ' ' << t << ' ' << threadnum << '\n';
 
     node<T>& cn(get_node(index,threadnum));
 
@@ -258,9 +269,9 @@ private:
     cn.data[offset] = t;
   };
 
-  T get_(size_t pos, int threadnum){
-    size_t index=pos / nblock;
-    size_t offset=pos%nblock;
+  T get_(size_t pos, size_t threadnum){
+    size_t index=pos / chunk_size;
+    size_t offset=pos%chunk_size;
 
     return get_node(index,threadnum).data[offset];
   };

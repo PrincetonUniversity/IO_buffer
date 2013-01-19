@@ -16,8 +16,8 @@ public:
   using abstract_policy<T>::get_mapper;
 
   policy_list(size_t max_in_mem, 
-	      size_t nblock): 
-    abstract_policy<T>(nblock),
+	      size_t chunk_size): 
+    abstract_policy<T>(chunk_size),
     max_in_mem_(max_in_mem)
   {}; 
 
@@ -81,9 +81,9 @@ private:
       );    
   }
 
-  virtual chunk&&  find_memory(int) = 0;
+  virtual chunk&&  find_memory(size_t) = 0;
 
-  chunk&& get_memory_(size_t index, size_t pos, int threadnum) override{ 
+  chunk&& get_memory_(size_t index, size_t pos, size_t threadnum) override{ 
     in_memory.push_front(chunkindex(index,pos)); 
     if (unused_chunks.size()){
       chunk&& cn(std::move(unused_chunks.back()));

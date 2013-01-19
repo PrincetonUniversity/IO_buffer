@@ -6,8 +6,8 @@ filer<T>::filer( const std::string& file_name,
 		 size_t nb,
 		 bool append):
   filename_(file_name),
-  nblock_(nb),
-  chunk_size_(nblock_ * sizeof(T))
+  chunk_size_(nb),
+  chunk_byte_size_(chunk_size_ * sizeof(T))
 {
   using namespace std;
   if (append){
@@ -16,8 +16,8 @@ filer<T>::filer( const std::string& file_name,
     // go to end of file
     ffile_.seekg(0,ios_base::end);
     // get file size
-    size_=ffile_.tellg() / this->chunk_size_;
-    if (ffile_.tellg() % this->chunk_size_) 
+    size_=ffile_.tellg() / this->chunk_byte_size_;
+    if (ffile_.tellg() % this->chunk_byte_size_) 
 	throw ios_base::failure(
 	   "Filer::filer: File contains non-integer multiple of chunk size");   
   }else{
@@ -36,10 +36,10 @@ void filer<T>::read_chunk( size_t pos, T* d){
       std::ios_base::failure(
 	    "Filer:read_chunk: pos exceeds file size in reading.");
 
-  size_t p( pos * chunk_size_);
+  size_t p( pos * chunk_byte_size_);
   ffile_.seekg( p );
 
-  ffile_.read((char*)d, chunk_size_ );
+  ffile_.read((char*)d, chunk_byte_size_ );
   if (ffile_.bad())
     throw std::ios_base::failure(
       "filer:read_chunk: IO-Error");   
@@ -52,16 +52,16 @@ void filer<T>::write_chunk( size_t pos,
   if (size_ <= pos){
     size_t missing(pos - size_); 
     // if size=pos I do not need to write intermediates
-    ffile_.seekp( size_ * chunk_size_ ); // current end of file
-    std::vector<T> empty(nblock_,0);
+    ffile_.seekp( size_ * chunk_byte_size_ ); // current end of file
+    std::vector<T> empty(chunk_size_,0);
     for (size_t i=0;i < missing; ++i)
-      ffile_.write((char*)&empty[0], chunk_size_ );
+      ffile_.write((char*)&empty[0], chunk_byte_size_ );
     size_ = pos+1;
   }else{
-    ffile_.seekp( pos * chunk_size_ );
+    ffile_.seekp( pos * chunk_byte_size_ );
   }
 
-  ffile_.write((char*)d, chunk_size_ );
+  ffile_.write((char*)d, chunk_byte_size_ );
   if (ffile_.bad())
     throw std::ios_base::failure(
       "filer:write_chunk: IO-Error");   
