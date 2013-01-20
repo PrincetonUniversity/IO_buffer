@@ -39,7 +39,7 @@ void for_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filen
 }
 
 extern "C"
-void for_buf_writeElement_( const FINT& unit, const FINT& pos, const double& value, const FINT& threadnum){
+void for_buf_writeelement_( const FINT& unit, const FINT& pos, const double& value, const FINT& threadnum){
 
   std::cout << "Called for_buf_writeElement\n";
 
@@ -52,7 +52,7 @@ void for_buf_writeElement_( const FINT& unit, const FINT& pos, const double& val
 }
 
 extern "C"
-void for_buf_writeArray_( const FINT& unit, const FINT& pos, const FINT& N, const double* values, const FINT& threadnum){
+void for_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& N, const double* values, const FINT& threadnum){
 
   std::cout << "Called for_buf_writeArray\n";
 
@@ -67,7 +67,7 @@ void for_buf_writeArray_( const FINT& unit, const FINT& pos, const FINT& N, cons
 }
 
 extern "C"
-void for_buf_readElement_( const FINT& unit, const FINT& pos, double& value, const FINT& threadnum){
+void for_buf_readelement_( const FINT& unit, const FINT& pos, double& value, const FINT& threadnum){
 
   std::cout << "Called for_buf_readElement\n";
 
@@ -79,7 +79,7 @@ void for_buf_readElement_( const FINT& unit, const FINT& pos, double& value, con
 }
 
 extern "C"
-void for_buf_readArray_( const FINT& unit, const FINT& pos, const FINT& N, double* values, const FINT& threadnum){
+void for_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N, double* values, const FINT& threadnum){
 
   std::cout << "Called for_buf_readElement\n";
 

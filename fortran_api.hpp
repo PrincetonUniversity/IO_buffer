@@ -27,19 +27,19 @@ void for_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filen
 
 /* write one element to the file unit at position pos */
 extern "C"
-void for_buf_writeElement_( const FINT& unit, const FINT& pos, const double& value, const FINT& threadnum);
+void for_buf_writeelement_( const FINT& unit, const FINT& pos, const double& value, const FINT& threadnum);
 
 /* write N elements to the file unit starting at position pos */
 extern "C"
-void for_buf_writeArray_( const FINT& unit, const FINT& pos, const FINT& N, const double* values, const FINT& threadnum);
+void for_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& N, const double* values, const FINT& threadnum);
 
 /* read one element from the file unit at position pos */
 extern "C"
-void for_buf_readElement_( const FINT& unit, const FINT& pos, double& value, const FINT& threadnum);
+void for_buf_readelement_( const FINT& unit, const FINT& pos, double& value, const FINT& threadnum);
 
 /* read N elements from the file unit starting at position pos */
 extern "C"
-void for_buf_readArray_( const FINT& unit, const FINT& pos, const FINT& N, double* values, const FINT& threadnum);
+void for_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N, double* values, const FINT& threadnum);
 
 // close file or entire pool, save content to disk before closing
 extern "C"
