@@ -61,10 +61,26 @@ void fortranapi::writeElement( const FINT& unit,
   getfilep(unit)->set(pos, value, threadnum);
 }
 
+void fortranapi::writeArray( const FINT& unit,
+			     const FINT& pos,
+			     const FINT& N,
+			     const double* values,
+			     const FINT& threadnum){
+  getfilep(unit)->set(pos, N, values, threadnum);
+}
+
 double fortranapi::readElement( const FINT& unit,
 				const FINT& pos,
 				const FINT& threadnum){
   return getfilep(unit)->get(pos, threadnum);
+}
+
+void fortranapi::readArray( const FINT& unit,
+			    const FINT& pos,
+			    const FINT& N,
+			    double* values,
+			    const FINT& threadnum){
+  getfilep(unit)->get(pos, N, values, threadnum);
 }
 
 void fortranapi::closefile( const FINT& unit){

@@ -48,7 +48,6 @@ void filer<T>::read_chunk( size_t pos, T* d){
 template <class T>
 void filer<T>::write_chunk( size_t pos,
 			    const T* d){
-
   if (size_ <= pos){
     size_t missing(pos - size_); 
     // if size=pos I do not need to write intermediates

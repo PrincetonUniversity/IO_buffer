@@ -71,13 +71,25 @@ public:
 		std::string filename);
 
   void writeElement( const FINT& unit,
-			     const FINT& pos,
-			     const double& value,
-			     const FINT& threadnum);
+		     const FINT& pos,
+		     const double& value,
+		     const FINT& threadnum);
+
+  void writeArray( const FINT& unit,
+		   const FINT& pos,
+		   const FINT& N,
+		   const double* values,
+		   const FINT& threadnum);
 
   double readElement( const FINT& unit,
 		      const FINT& pos,
 		      const FINT& threadnum);
+
+  void readArray( const FINT& unit,
+		  const FINT& pos,
+		  const FINT& N,
+		  double* values,
+		  const FINT& threadnum);
 
   void closefile( const FINT& unit);
 

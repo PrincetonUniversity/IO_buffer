@@ -14,21 +14,15 @@ void test_policy(){
 
   std::shared_ptr<policy_LiLo<double> > pl(new policy_LiLo<double>(10,N));
 
-  std::cerr << "Hm \n";
   std::weak_ptr<mapper<double> > b1 = mapper<double>::factory("buffer1.dat",1,pl);
-  std::cerr << "Hm \n";
   std::weak_ptr<mapper<double> > b2 = mapper<double>::factory("buffer2.dat",5,pl);
-  std::cerr << "Hm \n";
   std::weak_ptr<mapper<double> > b3 = mapper<double>::factory("buffer3.dat",52,pl);
-  std::cerr << "Hm \n";
 
   if (!b1.lock())
     std::cerr << "ERROR, mapper does not exist\n";
 
   for (size_t i = 0; i < 7285; ++i){
-    std::cerr << "Hu \n";
     b1.lock()->set(i, 0.852*i,0);
-    std::cerr << "Ho \n";
   }
   
   if (b1.lock()->get(358,0) != 305.016)
@@ -44,6 +38,8 @@ void test_policy(){
 
   if (b1.lock())
     std::cerr << "ERROR: b1 not properly cleaned up";
+
+  std::cout << "If no \"ERROR\" above, then test stage 1 is ok\n";
 }
 
 int main(int, char**){

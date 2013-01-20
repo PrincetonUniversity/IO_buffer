@@ -28,7 +28,7 @@ public:
     max_in_mem_(max_in_mem)
   {}; 
 
-  ~policy_list(){
+  virtual ~policy_list(){
     abstract_policy<T>::return_all_mem();
   }
 
@@ -88,14 +88,14 @@ private:
       );    
   }
 
-  virtual chunk&&  find_memory(size_t) = 0;
+  virtual chunk  find_memory(size_t) = 0;
 
-  chunk&& get_memory_(size_t index, size_t pos, size_t threadnum) OVERRIDE{ 
+  chunk get_memory_(size_t index, size_t pos, size_t threadnum) OVERRIDE{ 
     in_memory.push_front(chunkindex(index,pos)); 
     if (unused_chunks.size()){
-      chunk&& cn(std::move(unused_chunks.back()));
+      chunk cn(std::move(unused_chunks.back()));
       unused_chunks.pop_back();
-      return std::move(cn);
+      return cn;
     }
     return find_memory(threadnum);
   };

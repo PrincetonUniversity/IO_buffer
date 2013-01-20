@@ -1,6 +1,6 @@
 SOURCES = fortran_api.cpp fortranAPI_handler.cpp LiFo_policy.cpp	\
 mapper.cpp buffer.cpp 
-HEADERS = buffer.hpp mapper.hpp fortran_api.hpp LiFo_policy.hpp	\
+HEADERS = buffer.hpp mapper.hpp fortran_api.hpp abstract_policy.hpp LiFo_policy.hpp	\
 list_policy.hpp singleton.hpp fortranAPI_handler.hpp 
 TEMPLATES = buffer.tpp
 

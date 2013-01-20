@@ -50,7 +50,7 @@ public:
 			   "Too small max_in_mem for number of threads!");
   }; 
 
-  ~policy_LiFo(){
+  virtual ~policy_LiFo(){
   }
 
 private:
@@ -64,9 +64,9 @@ private:
     return max_in_mem() - 2 * nthread_;
   };
 
-  chunk&& find_memory(size_t threadnum) OVERRIDE{
+  chunk find_memory(size_t threadnum) OVERRIDE{
     if ( in_memory.size() < navail() ){
-      return std::move(chunk(abstract_policy<T>::chunk_size(),0));
+      return chunk(abstract_policy<T>::chunk_size(),0);
     }else{
 
       if (threadnum >= nthread_)
@@ -81,7 +81,7 @@ private:
       //check if ci has never been used and thus still contains npos
 
       if (ci.i_mapper == std::string::npos){
-	return std::move(chunk(abstract_policy<T>::chunk_size(),0));
+	return chunk(abstract_policy<T>::chunk_size(),0);
       }else{
 	auto pm(get_mapper(ci.i_mapper));
 	return pm->release_chunk(ci.i_chunk);
@@ -103,7 +103,7 @@ public:
     policy_list<T>(max_in_mem, chunk_size)
   {}; 
 
-  ~policy_LiLo(){
+  virtual ~policy_LiLo(){
   }
 
 private:
@@ -115,11 +115,10 @@ private:
   using policy_list<T>::unused_chunks;
   using policy_list<T>::max_in_mem;
 
-  chunk&& find_memory(size_t) OVERRIDE{
+  chunk find_memory(size_t) OVERRIDE{
     if ( in_memory.size() < max_in_mem()){
-      chunk c(abstract_policy<T>::chunk_size(),0);
-      // std::move avoids unnecessary copies
-      return std::move(c);
+      //      chunk c(abstract_policy<T>::chunk_size(),0);
+      return chunk(abstract_policy<T>::chunk_size(),0);
     }else{
       auto pm(get_mapper(in_memory.back().i_mapper));
       size_t ic(in_memory.back().i_chunk);
