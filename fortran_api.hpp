@@ -15,7 +15,7 @@
   return integer pool_id as handle to the constructed buffer
 */
 extern "C" 
-void for_buf_construct( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id );
+void for_buf_construct_( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id );
 
 /* 
    open file, and connect to logical unit number unit,
@@ -23,49 +23,49 @@ void for_buf_construct( const FINT& maxmem, const FINT& blocksize, const FINT& s
 */
 
 extern "C" 
-void for_buf_openfile( const FINT& pool_id, const FINT& unit, const char* filename, const int& length);
+void for_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filename, const int& length);
 
 /* write one element to the file unit at position pos */
 extern "C"
-void for_buf_writeElement( const FINT& unit, const FINT& pos, const double& value, const FINT& threadnum);
+void for_buf_writeElement_( const FINT& unit, const FINT& pos, const double& value, const FINT& threadnum);
 
 /* write N elements to the file unit starting at position pos */
 extern "C"
-void for_buf_writeArray( const FINT& unit, const FINT& pos, const FINT& N, const double* values, const FINT& threadnum);
+void for_buf_writeArray_( const FINT& unit, const FINT& pos, const FINT& N, const double* values, const FINT& threadnum);
 
 /* read one element from the file unit at position pos */
 extern "C"
-void for_buf_readElement( const FINT& unit, const FINT& pos, double& value, const FINT& threadnum);
+void for_buf_readElement_( const FINT& unit, const FINT& pos, double& value, const FINT& threadnum);
 
 /* read N elements from the file unit starting at position pos */
 extern "C"
-void for_buf_readArray( const FINT& unit, const FINT& pos, const FINT& N, double* values, const FINT& threadnum);
+void for_buf_readArray_( const FINT& unit, const FINT& pos, const FINT& N, double* values, const FINT& threadnum);
 
 // close file or entire pool, save content to disk before closing
 extern "C"
-void for_buf_closefile( const FINT& unit);
+void for_buf_closefile_( const FINT& unit);
 extern "C" 
-void for_buf_closepool( const FINT& pool_id );
+void for_buf_closepool_( const FINT& pool_id );
 
 // delete file, or entire pool, free memory, no flush, remove 
 // all intermediate files! potentially save IO for writing
 // temporary data. Note that unmodified memory will never be written
 extern"C"
-void for_buf_removefile( const FINT& unit);
+void for_buf_removefile_( const FINT& unit);
 extern "C" 
-void for_buf_removepool( const FINT& pool_id );
+void for_buf_removepool_( const FINT& pool_id );
 
 // write all memory buffers to file and free memory, without closing file
 extern "C"
-void for_buf_flushfile( const FINT& unit);
+void for_buf_flushfile_( const FINT& unit);
 extern "C"
-void for_buf_flushpool( const FINT& pool_id );
+void for_buf_flushpool_( const FINT& pool_id );
 
 // save all memory buffers for one file or entire pool to disk, 
 // without closing file or freeing memory
 extern "C"
-void for_buf_syncfile( const FINT& unit);
+void for_buf_syncfile_( const FINT& unit);
 extern "C"
-void for_buf_syncpool( const FINT& pool_id);
+void for_buf_syncpool_( const FINT& pool_id);
 
 #endif
