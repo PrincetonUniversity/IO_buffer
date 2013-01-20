@@ -3,9 +3,26 @@
 #include "mapper.hpp"
 #include "LiFo_policy.hpp"
 #include "fortranAPI_handler.hpp"
+#include "fortran_api.hpp"
 
 void test_fortranapi(){
+  FINT pool_id;
+  for_buf_construct_(100,500,0,1,pool_id);
 
+  for_buf_openfile_(pool_id, 48, "buf_F1.dat",10);
+
+  for (size_t i = 0; i < 28592; ++i){
+    for_buf_writeelement_(48,i,1.281*i*i+0.5892*i,0);
+  }
+
+  double value;
+
+  for_buf_readelement_(48,2583,value,0);
+
+  if (value != 1.281*2583*2583+0.5892*2583)
+    std::cerr << "ERROR: Elemenct 2583 is wrong!\n";
+
+  for_buf_removefile_(48);
 }
 
 void test_policy(){

@@ -95,7 +95,7 @@ public:
   p_abstract_policy get_policy(){ return policy.lock();};
 
   static p_mapper
-    factory(std::string fn, 
+    factory(const std::string& fn, 
 	    size_t index,
 	    p_abstract_policy pap){
     p_mapper pm(new mapper(fn,index,pap));
@@ -118,7 +118,7 @@ private:
 
   statistics stat;
 
-  mapper(std::string bufferfile,
+  mapper(const std::string& bufferfile,
 	 size_t ind,
 	 p_abstract_policy m):
     policy(m),

@@ -89,11 +89,14 @@ void fortranapi::closefile( const FINT& unit){
 }
 
 void fortranapi::removefile( const FINT& unit){
-  getfilep(unit)->get_policy()->remove_mapper(false);
+
   std::ostringstream oss;
   oss << "rm " << getfilep(unit)->filename() << '\n';
+
+  getfilep(unit)->get_policy()->remove_mapper(false);
   files[unit].reset(); // remove shared_ptr, 
   // not getfilep(unit).reset(), that would just reset the temporary 
+
   std::system(oss.str().c_str());  
 }
 

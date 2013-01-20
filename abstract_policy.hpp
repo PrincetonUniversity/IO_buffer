@@ -71,7 +71,7 @@ public:
   // free all memory owned by mapper index, close the file, 
   // save the memory to disk if save==true
   void remove_mapper( size_t index,
-		      bool save = true){ remove_mapper(index, save);};
+		      bool save = true){ remove_mapper_(index, save);};
 
   void sync( size_t index ){ sync_(index);}
   void sync(){ sync_();}
