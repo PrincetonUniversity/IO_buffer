@@ -65,7 +65,6 @@ private:
   };
 
   chunk find_memory(size_t threadnum) OVERRIDE{
-    std::lock_guard<std::mutex> lock_mapper(mutex_in_memory);
     if ( in_memory.size() < navail() ){
       return chunk(abstract_policy<T>::chunk_size(),0);
     }else{
