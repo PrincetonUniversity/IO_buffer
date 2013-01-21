@@ -7,6 +7,7 @@
 extern "C" 
 void for_buf_construct_( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id ){
 
+#ifdef DEBUG_FORBUF
   std::cout << "Called for_buf_construct\n";
 
   std::cout << "maxmem        =" << maxmem << '\n'
@@ -15,6 +16,7 @@ void for_buf_construct_( const FINT& maxmem, const FINT& blocksize, const FINT& 
             << "nthread       =" << nthread << '\n';
 
   std::cout.flush();
+#endif
 
   pool_id = fortranapi::get().construct(maxmem, 
 					blocksize, 
@@ -26,20 +28,24 @@ void for_buf_construct_( const FINT& maxmem, const FINT& blocksize, const FINT& 
 extern "C" 
 void for_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filename, const int& length){
   
+#ifdef DEBUG_FORBUF
   std::cout << "Called for_buf_openfile\n";
 
   std::cout << "pool_id  =" << pool_id << '\n'
 	    << "unit     =" << unit << '\n'
             << "length   =" << length << '\n';
   std::cout.flush();
+#endif
 
   std::string fn;
   for (int i=0; i < length; ++i) fn += filename[i];
 
+#ifdef DEBUG_FORBUF
   std::cout << "Called for_buf_openfile\n";
 
   std::cout << "filename =" << fn << '\n';
   std::cout.flush();
+#endif
 
   fortranapi::get().openfile(pool_id, unit, fn);
 
@@ -48,13 +54,15 @@ void for_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filen
 extern "C"
 void for_buf_writeelement_( const FINT& unit, const FINT& pos, const double& value, const FINT& threadnum){
 
-  /*std::cout << "Called for_buf_writeElement\n";
+#ifdef DEBUG_FORBUF
+  std::cout << "Called for_buf_writeElement\n";
 
   std::cout << "unit     =" << unit << '\n'
 	    << "pos      =" << pos << '\n'
 	    << "value    =" << value << '\n'
             << "threadnum=" << threadnum << '\n';
-  std::cout.flush();*/
+  std::cout.flush();
+#endif
 
   fortranapi::get().writeElement(unit, pos, value, threadnum);
 }
@@ -62,6 +70,7 @@ void for_buf_writeelement_( const FINT& unit, const FINT& pos, const double& val
 extern "C"
 void for_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& N, const double* values, const FINT& threadnum){
 
+#ifdef DEBUG_FORBUF
   std::cout << "Called for_buf_writeArray\n";
 
   std::cout << "unit     =" << unit << '\n'
@@ -70,6 +79,7 @@ void for_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& N, cons
 	    << "value[0] =" << values[0] << '\n'
             << "threadnum=" << threadnum << '\n';
   std::cout.flush();
+#endif
 
   fortranapi::get().writeArray(unit, pos, N, values, threadnum);
 }
@@ -77,12 +87,14 @@ void for_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& N, cons
 extern "C"
 void for_buf_readelement_( const FINT& unit, const FINT& pos, double& value, const FINT& threadnum){
 
+#ifdef DEBUG_FORBUF
   std::cout << "Called for_buf_readElement\n";
 
   std::cout  << "unit     =" << unit << '\n'
 	     << "pos      =" << pos << '\n'
 	     << "threadnum=" << threadnum << '\n';
   std::cout.flush();
+#endif
 
   value = fortranapi::get().readElement(unit, pos, threadnum);
 }
@@ -90,6 +102,7 @@ void for_buf_readelement_( const FINT& unit, const FINT& pos, double& value, con
 extern "C"
 void for_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N, double* values, const FINT& threadnum){
 
+#ifdef DEBUG_FORBUF
   std::cout << "Called for_buf_readElement\n";
 
   std::cout  << "unit     =" << unit << '\n'
@@ -97,6 +110,7 @@ void for_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N, doubl
 	    << "N        =" << N << '\n'
 	     << "threadnum=" << threadnum << '\n';
   std::cout.flush();
+#endif
 
   fortranapi::get().readArray(unit, pos, N, values, threadnum);
 }
@@ -105,10 +119,12 @@ void for_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N, doubl
 extern "C"
 void for_buf_closefile_( const FINT& unit){
   
+#ifdef DEBUG_FORBUF
   std::cout << "Called for_buf_closefile\n";
 
   std::cout << "unit     =" << unit << '\n';
   std::cout.flush();
+#endif
 
   fortranapi::get().closefile(unit);
 }
@@ -117,10 +133,12 @@ void for_buf_closefile_( const FINT& unit){
 extern"C"
 void for_buf_removefile_( const FINT& unit){
 
+#ifdef DEBUG_FORBUF
   std::cout << "Called for_buf_removefile\n";
 
   std::cout << "unit     =" << unit << '\n';
   std::cout.flush();
+#endif
 
   fortranapi::get().removefile(unit);
 }
@@ -129,10 +147,12 @@ void for_buf_removefile_( const FINT& unit){
 extern "C"
 void for_buf_flushfile_( const FINT& unit){
 
+#ifdef DEBUG_FORBUF
   std::cout << "Called for_buf_flushfile\n";
 
   std::cout << "unit     =" << unit << '\n';
   std::cout.flush();
+#endif
 
   fortranapi::get().flushfile(unit);
 }
@@ -141,10 +161,12 @@ void for_buf_flushfile_( const FINT& unit){
 extern "C"
 void for_buf_syncfile_( const FINT& unit){
 
+#ifdef DEBUG_FORBUF
   std::cout << "Called for_buf_syncfile\n";
 
   std::cout << "unit     =" << unit << '\n';
   std::cout.flush();
+#endif
 
   fortranapi::get().syncfile(unit);
 }
@@ -153,10 +175,12 @@ void for_buf_syncfile_( const FINT& unit){
 extern "C"
 void for_buf_syncpool_( const FINT& pool_id){
 
+#ifdef DEBUG_FORBUF
   std::cout << "Called for_buf_syncpool\n";
 
   std::cout << "unit     =" << pool_id << '\n';
   std::cout.flush();
+#endif
 
   fortranapi::get().syncpool(pool_id);
 }
@@ -165,10 +189,12 @@ void for_buf_syncpool_( const FINT& pool_id){
 extern "C" 
 void for_buf_closepool_( const FINT& pool_id ){
 
+#ifdef DEBUG_FORBUF
   std::cout << "Called for_buf_closepool\n";
 
   std::cout << "pool_id     =" << pool_id << '\n';
   std::cout.flush();
+#endif
 
   fortranapi::get().closepool(pool_id);
 }
@@ -177,10 +203,12 @@ void for_buf_closepool_( const FINT& pool_id ){
 extern "C" 
 void for_buf_removepool_( const FINT& pool_id ){
 
+#ifdef DEBUG_FORBUF
   std::cout << "Called for_buf_removepool\n";
 
   std::cout << "pool_id     =" << pool_id << '\n';
   std::cout.flush();
+#endif
 
   fortranapi::get().removepool(pool_id);
 }
@@ -189,10 +217,12 @@ void for_buf_removepool_( const FINT& pool_id ){
 extern "C"
 void for_buf_flushpool_( const FINT& pool_id ){
 
+#ifdef DEBUG_FORBUF
   std::cout << "Called for_buf_flushpool\n";
 
   std::cout << "pool_id     =" << pool_id << '\n';
   std::cout.flush();
+#endif
 
   fortranapi::get().flushpool(pool_id);
 }
