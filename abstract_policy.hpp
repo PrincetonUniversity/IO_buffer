@@ -94,8 +94,8 @@ public:
     auto pit(mappers.find(index));
     if (pit == mappers.end())
       throw E_invalid_mapper_id(index);
-    p_mapper(pit.second);
-    if (!pit)
+    p_mapper pm(pit->second);
+    if (!pm)
       throw E_invalid_mapper_id(index);
     return pm;
   };
