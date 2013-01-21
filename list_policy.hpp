@@ -41,6 +41,8 @@ protected:
     chunkindex(size_t im, size_t ic):i_mapper(im),i_chunk(ic){};    
   };
 
+  std::mutex mutex_in_memory;
+
   std::list< chunkindex > in_memory;
 
   std::list< chunk > unused_chunks;
@@ -91,6 +93,7 @@ private:
   virtual chunk  find_memory(size_t) = 0;
 
   chunk get_memory_(size_t index, size_t pos, size_t threadnum) OVERRIDE{ 
+    std::lock_guard<std::mutex> lock_mapper(mutex_in_memory);
     in_memory.push_front(chunkindex(index,pos)); 
     if (unused_chunks.size()){
       chunk cn(std::move(unused_chunks.back()));

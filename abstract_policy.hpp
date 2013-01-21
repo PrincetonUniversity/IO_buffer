@@ -2,6 +2,7 @@
 #define ABSTRACTPOL_F_FLO
 
 #include <list>
+#include <mutex>
 #include <map>
 #include <vector>
 #include <exception>
@@ -90,8 +91,12 @@ public:
   size_t mapper_count(){ return mappers.size();};
 
   p_mapper get_mapper(size_t index){
-    p_mapper pm(mappers[index]);
-    if (!pm) throw E_invalid_mapper_id(index);
+    auto pit(mappers.find(index));
+    if (pit == mappers.end())
+      throw E_invalid_mapper_id(index);
+    p_mapper(pit.second);
+    if (!pit)
+      throw E_invalid_mapper_id(index);
     return pm;
   };
 
@@ -105,6 +110,8 @@ protected:
     return mappers.end();};
 
 private:  
+
+  std::mutex mutex_mappers;
 
   size_t chunk_size_;
 
@@ -120,13 +127,15 @@ private:
 			      size_t pos, 
 			      size_t threadnum) = 0;
 
-  void remove_mapper_(size_t index, bool save){
-    if (!mappers[index]) return;
+  void remove_mapper_(size_t index, bool save){    
+    std::lock_guard<std::mutex> lock_mapper(mutex_mappers);
+    if (mappers.find(index) == mappers.end()) return;
     return_all_mem_(index, save);
     get_mapper(index).reset();
   }
 
   void assign_mapper_(p_mapper pm, size_t index) { 
+    std::lock_guard<std::mutex> lock_mapper(mutex_mappers);
     p_mapper querymp(mappers[index]);
     if (querymp) // index already exists!
       throw E_invalid_mapper_id(index);

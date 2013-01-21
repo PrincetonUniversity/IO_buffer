@@ -64,7 +64,7 @@ void for_buf_writeelement_( const FINT& unit, const FINT& pos, const double& val
   std::cout.flush();
 #endif
 
-  fortranapi::get().writeElement(unit, pos, value, threadnum);
+  fortranapi::get().writeElement(unit, pos, value, threadnum-1);
 }
 
 extern "C"
@@ -81,7 +81,7 @@ void for_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& N, cons
   std::cout.flush();
 #endif
 
-  fortranapi::get().writeArray(unit, pos, N, values, threadnum);
+  fortranapi::get().writeArray(unit, pos, N, values, threadnum-1);
 }
 
 extern "C"
@@ -96,7 +96,7 @@ void for_buf_readelement_( const FINT& unit, const FINT& pos, double& value, con
   std::cout.flush();
 #endif
 
-  value = fortranapi::get().readElement(unit, pos, threadnum);
+  value = fortranapi::get().readElement(unit, pos, threadnum-1);
 }
 
 extern "C"
@@ -112,7 +112,7 @@ void for_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N, doubl
   std::cout.flush();
 #endif
 
-  fortranapi::get().readArray(unit, pos, N, values, threadnum);
+  fortranapi::get().readArray(unit, pos, N, values, threadnum-1);
 }
 
 // close file, flush before closing
