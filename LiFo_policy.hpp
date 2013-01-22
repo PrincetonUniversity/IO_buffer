@@ -28,7 +28,6 @@ template< class T >
 class policy_LiFo: public policy_list<T>{
   using typename policy_list<T>::chunkindex;
 
-  using policy_list<T>::in_memory;
   using policy_list<T>::unused_chunks;
   using policy_list<T>::max_in_mem;
 
@@ -65,7 +64,7 @@ private:
   };
 
   chunk find_memory(size_t threadnum) OVERRIDE{
-    if ( in_memory.size() < navail() ){
+    if (policy_list<T>::in_memory_size() < navail() ){
       return chunk(abstract_policy<T>::chunk_size(),0);
     }else{
 
@@ -74,9 +73,9 @@ private:
 
       chunkindex ci(threadswap[threadnum*2]);
       threadswap[threadnum*2] = threadswap[threadnum*2+1];
-      threadswap[threadnum*2+1] = in_memory.front();
+      threadswap[threadnum*2+1] = policy_list<T>::in_memory_front();
       // undo the push_front in list_policy::get_memory
-      in_memory.pop_front();
+      policy_list<T>::in_memory_pop_front();
 
       //check if ci has never been used and thus still contains npos
 
@@ -111,18 +110,17 @@ private:
 
   using typename policy_list<T>::chunkindex;
 
-  using policy_list<T>::in_memory;
   using policy_list<T>::unused_chunks;
   using policy_list<T>::max_in_mem;
 
   chunk find_memory(size_t) OVERRIDE{
-    if ( in_memory.size() < max_in_mem()){
+    if ( policy_list<T>::in_memory_size() < max_in_mem()){
       //      chunk c(abstract_policy<T>::chunk_size(),0);
       return chunk(abstract_policy<T>::chunk_size(),0);
     }else{
-      auto pm(get_mapper(in_memory.back().i_mapper));
-      size_t ic(in_memory.back().i_chunk);
-      in_memory.pop_back();
+      auto pm(get_mapper(policy_list<T>::in_memory_back().i_mapper));
+      size_t ic(policy_list<T>::in_memory_back().i_chunk);
+      policy_list<T>::in_memory_pop_back();
       return pm->release_chunk(ic);
     }
   }

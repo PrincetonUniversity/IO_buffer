@@ -7,11 +7,11 @@
 
 void test_fortranapi(){
   FINT pool_id;
-  for_buf_construct_(100,500,0,1,pool_id);
+  for_buf_construct_(10000,50000,0,1,pool_id);
 
   for_buf_openfile_(pool_id, 48, "buf_F1.dat",10);
 
-  for (size_t i = 0; i < 28592; ++i){
+  for (size_t i = 0; i < 2928592; ++i){
     for_buf_writeelement_(48,i,1.281*i*i+0.5892*i,1);
   }
 
