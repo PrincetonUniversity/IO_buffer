@@ -17,12 +17,14 @@ p_abstract_policy fortranapi::getpolicy( FINT pool_id ){
   return pp;
 }
 
-p_mapper fortranapi::getfilep( FINT index){
-  p_mapper p(files[index]);
+#ifndef FORBUF_FAST
+pw_mapper fortranapi::getfilep( FINT index){
+  pw_mapper p(files[index]);
   if (!p) 
     throw E_unknown_file_id(index);
   return p;
 }
+#endif
 
 FINT fortranapi::construct(const FINT& maxmem,
 			   const FINT& blocksize,
@@ -51,14 +53,7 @@ FINT fortranapi::construct(const FINT& maxmem,
 void fortranapi::openfile(const FINT& pool_id,
 			  const FINT& unit,
 			  std::string filename){
-  files[unit] = mapper<double>::factory(filename, unit, getpolicy(pool_id));
-}
-
-void fortranapi::writeElement( const FINT& unit,
-				       const FINT& pos,
-				       const double& value,
-				       const FINT& threadnum){
-  getfilep(unit)->set(pos, value, threadnum);
+  files[unit] = mapper<double>::factory(filename, unit, getpolicy(pool_id)).get();
 }
 
 void fortranapi::writeArray( const FINT& unit,
@@ -67,12 +62,6 @@ void fortranapi::writeArray( const FINT& unit,
 			     const double* values,
 			     const FINT& threadnum){
   getfilep(unit)->set(pos, N, values, threadnum);
-}
-
-double fortranapi::readElement( const FINT& unit,
-				const FINT& pos,
-				const FINT& threadnum){
-  return getfilep(unit)->get(pos, threadnum);
 }
 
 void fortranapi::readArray( const FINT& unit,
@@ -85,7 +74,7 @@ void fortranapi::readArray( const FINT& unit,
 
 void fortranapi::closefile( const FINT& unit){
   getfilep(unit)->get_policy()->remove_mapper(unit);
-  files[unit].reset();
+  files[unit] = NULL;
 }
 
 void fortranapi::removefile( const FINT& unit){
@@ -94,7 +83,7 @@ void fortranapi::removefile( const FINT& unit){
   oss << "rm " << getfilep(unit)->filename() << '\n';
 
   getfilep(unit)->get_policy()->remove_mapper(false);
-  files[unit].reset(); // remove shared_ptr, 
+  files[unit] = NULL; // remove shared_ptr, 
   // not getfilep(unit).reset(), that would just reset the temporary 
 
   std::system(oss.str().c_str());  
@@ -124,7 +113,7 @@ void fortranapi::removepool( const FINT& poolid){
   
   for (auto p = files.begin(); p!=files.end(); ++p)
     {
-      p_mapper pm(p->second.lock()); 
+      pw_mapper pm(p->second); 
       if (pm->get_policy() == pp){
 	 oss << pm->filename() << ' ';
       }

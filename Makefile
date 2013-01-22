@@ -15,6 +15,9 @@ endif
 
 CFLAGS= -std=c++11 -Wall -Wextra -g -pedantic
 
+# uncomment to make code faster but use less error-checking
+#CFLAGS += -D FORBUF_FAST
+
 all:	libforbuf.a binary_to_ascii
 
 binary_to_ascii:	binary_to_ascii.o

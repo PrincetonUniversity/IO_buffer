@@ -12,12 +12,12 @@ void test_fortranapi(){
   for_buf_openfile_(pool_id, 48, "buf_F1.dat",10);
 
   for (size_t i = 0; i < 28592; ++i){
-    for_buf_writeelement_(48,i,1.281*i*i+0.5892*i,0);
+    for_buf_writeelement_(48,i,1.281*i*i+0.5892*i,1);
   }
 
   double value;
 
-  for_buf_readelement_(48,2583,value,0);
+  for_buf_readelement_(48,2583,value,1);
 
   if (value != 1.281*2583*2583+0.5892*2583)
     std::cerr << "ERROR: Elemenct 2583 is wrong!\n";
@@ -39,17 +39,17 @@ void test_policy(){
     std::cerr << "ERROR, mapper does not exist\n";
 
   for (size_t i = 0; i < 7285; ++i){
-    b1.lock()->set(i, 0.852*i,0);
+    b1.lock()->set(i, 0.852*i,1);
   }
   
-  if (b1.lock()->get(358,0) != 305.016)
+  if (b1.lock()->get(358,1) != 305.016)
     std::cerr << "ERROR: b1get gives wrong value at 358";
 
-  if (b1.lock()->get(871,0) != 742.092)
+  if (b1.lock()->get(871,1) != 742.092)
     std::cerr << "ERROR: b1get gives wrong value at 871";
 
-  if (b1.lock()->get(872,0) != 742.944)
-    std::cerr << "ERROR: b1get gives wrong value at 872";
+  if (b1.lock()->get(872,1) != 742.944)
+    std::cerr << "ERROR: b1get gives wrong value " << b1.lock()->get(872,1)<< " at 872";
 
   pl.reset();
 

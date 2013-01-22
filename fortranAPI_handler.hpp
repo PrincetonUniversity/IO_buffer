@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include "mapper.hpp"
 #include "singleton.hpp"
 #include <exception>
 #include <iostream>
@@ -55,7 +56,7 @@ typedef std::shared_ptr<abstract_policy<double> > p_abstract_policy;
 template <class T>
 class mapper;
 typedef std::shared_ptr<mapper<double> > p_mapper;
-typedef std::weak_ptr<mapper<double> > pw_mapper;
+typedef mapper<double>* pw_mapper;
 
 class fortranapi: public Singleton<fortranapi>{
 
@@ -73,7 +74,9 @@ public:
   void writeElement( const FINT& unit,
 		     const FINT& pos,
 		     const double& value,
-		     const FINT& threadnum);
+		     const FINT& threadnum){
+    getfilep(unit)->set(pos, value, threadnum);
+  };
 
   void writeArray( const FINT& unit,
 		   const FINT& pos,
@@ -83,7 +86,8 @@ public:
 
   double readElement( const FINT& unit,
 		      const FINT& pos,
-		      const FINT& threadnum);
+		      const FINT& threadnum){
+    return getfilep(unit)->get(pos, threadnum);}
 
   void readArray( const FINT& unit,
 		  const FINT& pos,
@@ -113,8 +117,11 @@ private:
 
   std::vector< p_abstract_policy > pools;
 
-  p_mapper getfilep( FINT );
-
+  pw_mapper getfilep( FINT file_id )
+#ifdef FORBUF_FAST
+  { return files[file_id];}
+#endif
+;
   p_abstract_policy getpolicy( FINT );
 
 };

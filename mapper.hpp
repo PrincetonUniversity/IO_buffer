@@ -107,7 +107,15 @@ private:
 
   typedef std::weak_ptr<abstract_policy<T> > pw_abstract_policy;
   pw_abstract_policy policy;
- 
+
+#ifdef FORBUF_FAST
+  // always remember last access point, to fast 
+  // track consecutive IO to one chunk 
+  typename chunk::iterator currentchunk;
+  size_t currentindex;
+  size_t currentwriteindex;
+#endif
+
   size_t chunk_size;
 
   filer<T> file_data;  
@@ -122,6 +130,10 @@ private:
 	 size_t ind,
 	 p_abstract_policy m):
     policy(m),
+#ifdef FORBUF_FAST
+    currentindex(-1),
+    currentwriteindex(-1),
+#endif
     chunk_size(m->chunk_size()),
     file_data(bufferfile.c_str(), chunk_size),
     my_index(ind)
@@ -133,7 +145,12 @@ private:
       file_data.write_chunk(chunk_index,&cn.data[0]);    
   };
 
-  chunk release_chunk_(size_t chunk_index, bool save){
+  chunk release_chunk_(size_t chunk_index, bool save){    
+#ifdef FORBUF_FAST
+    if (chunk_index==currentindex)
+      currentindex = -1;
+      currentwriteindex = -1;
+#endif
     node<T>& cn(nodes[chunk_index]);
     // if it is modified, need to write changes
     if ( save && cn.status==node<T>::modified){
@@ -163,9 +180,14 @@ private:
 	  nodes.resize(chunk_index+20);
 
       node<T>& cn(nodes[chunk_index]);    
+
       // if cn.data already associated, we do not need to do anything more
       if (cn.data.size()){
 	++stat.n_IO_avoided;
+#ifdef FORBUF_FAST
+	currentindex = chunk_index;
+	currentchunk = cn.data.begin();
+#endif
 	return cn;
       }
       
@@ -184,6 +206,10 @@ private:
 
       cn.status=node<T>::loaded;
 
+#ifdef FORBUF_FAST
+      currentindex = chunk_index;
+      currentchunk = cn.data.begin();
+#endif
       return cn;
   };
 
@@ -192,11 +218,22 @@ private:
     size_t index=pos / chunk_size;
     size_t offset=pos%chunk_size;
 
+#ifdef FORBUF_FAST
+    if (index != currentwriteindex){
+      node<T>& cn(get_node(index,threadnum));
+      cn.status=node<T>::modified;
+      ++stat.n_write_buff;
+      cn.data[offset] = t;
+      currentwriteindex = currentindex;
+    }else{
+      *(currentchunk + offset) = t;
+    }
+#else    
     node<T>& cn(get_node(index,threadnum));
-
     cn.status=node<T>::modified;
     ++stat.n_write_buff;
     cn.data[offset] = t;
+#endif
   };
 
   // change N values starting from pos to t
@@ -228,7 +265,15 @@ private:
     size_t offset=pos%chunk_size;
 
     ++stat.n_read_buff;
-    return get_node(index,threadnum).data[offset];
+#ifdef FORBUF_FAST
+    if (index==currentindex){
+      return *(currentchunk + offset);
+    }else{
+      return get_node(index,threadnum).data[offset];    
+    }
+#else
+    return get_node(index,threadnum).data[offset];    
+#endif
   };
 
   void get_(size_t pos, size_t N, T* t, size_t threadnum){
