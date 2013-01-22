@@ -25,6 +25,7 @@ public:
   policy_list(size_t max_in_mem, 
 	      size_t chunk_size): 
     abstract_policy<T>(chunk_size),
+    in_memory_size_(0),
     max_in_mem_(max_in_mem)
   {}; 
 
@@ -53,10 +54,10 @@ protected:
   chunkindex& in_memory_front(){ return in_memory.front();};
 
   void in_memory_pop_front(){ --in_memory_size_; in_memory.pop_front();};
-  void in_memory_push_front(){ ++in_memory_size_; in_memory.push_front();};
+  void in_memory_push_front(chunkindex ci){ ++in_memory_size_; in_memory.push_front(ci);};
 
   void in_memory_pop_back(){ --in_memory_size_; in_memory.pop_back();};
-  void in_memory_push_back(){ ++in_memory_size_; in_memory.push_back();};
+  void in_memory_push_back(chunkindex ci){ ++in_memory_size_; in_memory.push_back(ci);};
 
 private:
 
@@ -91,8 +92,7 @@ private:
       const chunkindex& ci(in_memory.back());
       auto pm(get_mapper(ci.i_mapper));      
       unused_chunks.push_back(pm->release_chunk(ci.i_chunk, save));
-      in_memory.pop_back();      
-      --in_memory_size_;
+      in_memory_pop_back();      
     }
   }
 
@@ -113,8 +113,7 @@ private:
 
   chunk get_memory_(size_t index, size_t pos, size_t threadnum) OVERRIDE{ 
     std::lock_guard<std::mutex> lock_mapper(mutex_in_memory);
-    in_memory.push_front(chunkindex(index,pos)); 
-    ++in_memory_size_;
+    in_memory_push_front(chunkindex(index,pos)); 
     if ( ! unused_chunks.empty()){
       chunk cn(std::move(unused_chunks.back()));
       unused_chunks.pop_back();
