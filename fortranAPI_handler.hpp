@@ -113,11 +113,11 @@ public:
 
 private:
 
-  std::map< FINT, pw_mapper > files;
+  std::vector< pw_mapper > files;
 
   std::vector< p_abstract_policy > pools;
 
-  pw_mapper getfilep( FINT file_id )
+  pw_mapper getfilep( int file_id )
 #ifdef FORBUF_FAST
   { return files[file_id];}
 #endif

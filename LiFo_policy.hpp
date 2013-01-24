@@ -64,7 +64,7 @@ private:
   };
 
   chunk find_memory(size_t threadnum) OVERRIDE{
-    if (policy_list<T>::in_memory_size() < navail() ){
+    if (policy_list<T>::in_memory_size() <= navail() ){
       return chunk(abstract_policy<T>::chunk_size(),0);
     }else{
 

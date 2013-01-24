@@ -18,7 +18,7 @@ p_abstract_policy fortranapi::getpolicy( FINT pool_id ){
 }
 
 #ifndef FORBUF_FAST
-pw_mapper fortranapi::getfilep( FINT index){
+pw_mapper fortranapi::getfilep( int index){
   pw_mapper p(files[index]);
   if (!p) 
     throw E_unknown_file_id(index);
@@ -53,6 +53,9 @@ FINT fortranapi::construct(const FINT& maxmem,
 void fortranapi::openfile(const FINT& pool_id,
 			  const FINT& unit,
 			  std::string filename){
+  if (static_cast<size_t>(unit) > files.size()){
+    files.resize(unit+1);
+  } 
   files[unit] = mapper<double>::factory(filename, unit, getpolicy(pool_id)).get();
 }
 
@@ -113,7 +116,7 @@ void fortranapi::removepool( const FINT& poolid){
   
   for (auto p = files.begin(); p!=files.end(); ++p)
     {
-      pw_mapper pm(p->second); 
+      pw_mapper pm(*p); 
       if (pm->get_policy() == pp){
 	 oss << pm->filename() << ' ';
       }

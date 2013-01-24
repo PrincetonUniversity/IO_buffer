@@ -18,6 +18,8 @@ struct statistics{
   size_t n_write_buff;
   size_t n_write_file;
   size_t n_IO_avoided;
+  size_t n_fastwrite;
+  size_t n_fastread;
   size_t n_not_modified;
   size_t n_blanked;
 
@@ -26,6 +28,8 @@ struct statistics{
 		n_write_buff(0),
 		n_write_file(0),
 		n_IO_avoided(0),
+		n_fastwrite(0),
+		n_fastread(0),
 		n_not_modified(0),
 		n_blanked(0)
   {};
@@ -36,7 +40,9 @@ struct statistics{
     ofs << n_read_file << " chunks read from disk\n";
     ofs << n_write_buff << " individual writes\n";
     ofs << n_write_file << " chunks written to disk\n";
-    ofs << n_IO_avoided << " avoided IO operations as chunk already in RAM\n";
+    ofs << n_IO_avoided << " non-optimized (chunk miss) IO operations in RAM\n";
+    ofs << n_fastwrite  << " optimized IO operations in RAM\n";
+    ofs << n_fastread   << " optimized IO operations in RAM\n";
 
     ofs << n_not_modified << " writes avoided as chunk not modified in RAM\n";
     ofs << n_blanked << " reads suspicuously saved because chunk not on file\n";
@@ -176,41 +182,42 @@ private:
   node<T>& get_node( size_t chunk_index, size_t thread_num ){
     // if too small nodes, then resize to a bit larger, 
     // to avoid much resizing in the beginning
-      if (chunk_index >= nodes.size())
-	  nodes.resize(chunk_index+20);
 
-      node<T>& cn(nodes[chunk_index]);    
+    if (chunk_index >= nodes.size())
+      nodes.resize(chunk_index+20);
+
+    node<T>& cn(nodes[chunk_index]);    
 
       // if cn.data already associated, we do not need to do anything more
-      if (cn.data.size()){
-	++stat.n_IO_avoided;
-#ifdef FORBUF_FAST
-	currentindex = chunk_index;
-	currentchunk = cn.data.begin();
-#endif
-	return cn;
-      }
-      
-      // get chunk of memory
-      cn.data = policy.lock()->get_memory(my_index, chunk_index, thread_num);
-
-      if (cn.status == node<T>::stored){
-	// load it from disk if it is on disk
-	file_data.read_chunk(chunk_index, &(cn.data[0]));
-	++stat.n_read_file;
-      }else{
-	// blank the memory, as it still contains swapped-out block
-	std::fill(cn.data.begin(), cn.data.end(), 0);
-	++stat.n_blanked;
-      }
-
-      cn.status=node<T>::loaded;
-
+    if (cn.data.size()){
+      ++stat.n_IO_avoided;
 #ifdef FORBUF_FAST
       currentindex = chunk_index;
       currentchunk = cn.data.begin();
 #endif
       return cn;
+    }
+      
+    // get chunk of memory
+    cn.data = policy.lock()->get_memory(my_index, chunk_index, thread_num);
+
+    if (cn.status == node<T>::stored){
+      // load it from disk if it is on disk
+      file_data.read_chunk(chunk_index, &(cn.data[0]));
+      ++stat.n_read_file;
+    }else{
+      // blank the memory, as it still contains swapped-out block
+      std::fill(cn.data.begin(), cn.data.end(), 0);
+      ++stat.n_blanked;
+    }
+
+    cn.status=node<T>::loaded;
+
+#ifdef FORBUF_FAST
+    currentindex = chunk_index;
+    currentchunk = cn.data.begin();
+#endif
+    return cn;
   };
 
   // change value at pos to t
@@ -218,20 +225,21 @@ private:
     size_t index=pos / chunk_size;
     size_t offset=pos%chunk_size;
 
+    ++stat.n_write_buff;
+
 #ifdef FORBUF_FAST
     if (index != currentwriteindex){
       node<T>& cn(get_node(index,threadnum));
       cn.status=node<T>::modified;
-      ++stat.n_write_buff;
       cn.data[offset] = t;
       currentwriteindex = currentindex;
     }else{
       *(currentchunk + offset) = t;
+      ++stat.n_fastwrite;
     }
 #else    
     node<T>& cn(get_node(index,threadnum));
     cn.status=node<T>::modified;
-    ++stat.n_write_buff;
     cn.data[offset] = t;
 #endif
   };
@@ -267,6 +275,7 @@ private:
     ++stat.n_read_buff;
 #ifdef FORBUF_FAST
     if (index==currentindex){
+      ++stat.n_fastread;
       return *(currentchunk + offset);
     }else{
       return get_node(index,threadnum).data[offset];    
