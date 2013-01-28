@@ -41,7 +41,9 @@ FINT fortranapi::construct(const FINT& maxmem,
 							      nthread)));
     break;
   case 1: // LiLo
-    pools.push_back(p_abstract_policy(new policy_LiLo<double>(maxmem,blocksize)));
+    pools.push_back(p_abstract_policy(new policy_LiLo<double>(maxmem,
+							      blocksize, 
+							      nthread)));
     break;
   default:
     throw E_unknown_storagepolicy(storagepolicy);
@@ -85,7 +87,7 @@ void fortranapi::removefile( const FINT& unit){
   std::ostringstream oss;
   oss << "rm " << getfilep(unit)->filename() << '\n';
 
-  getfilep(unit)->get_policy()->remove_mapper(false);
+  getfilep(unit)->get_policy()->remove_mapper(unit, false);
   files[unit] = NULL; // remove shared_ptr, 
   // not getfilep(unit).reset(), that would just reset the temporary 
 

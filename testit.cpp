@@ -47,7 +47,7 @@ void test_policy(){
 
   const size_t N=50;
 
-  std::shared_ptr<policy_LiLo<double> > pl(new policy_LiLo<double>(10,N));
+  std::shared_ptr<policy_LiLo<double> > pl(new policy_LiLo<double>(10,N,1));
 
   std::weak_ptr<mapper<double> > b1 = mapper<double>::factory("buffer1.dat",1,pl);
   std::weak_ptr<mapper<double> > b2 = mapper<double>::factory("buffer2.dat",5,pl);
@@ -57,17 +57,17 @@ void test_policy(){
     std::cerr << "ERROR, mapper does not exist\n";
 
   for (size_t i = 0; i < 7285; ++i){
-    b1.lock()->set(i, 0.852*i,1);
+    b1.lock()->set(i, 0.852*i,0);
   }
   
-  if (b1.lock()->get(358,1) != 305.016)
+  if (b1.lock()->get(358,0) != 305.016)
     std::cerr << "ERROR: b1get gives wrong value at 358";
 
-  if (b1.lock()->get(871,1) != 742.092)
+  if (b1.lock()->get(871,0) != 742.092)
     std::cerr << "ERROR: b1get gives wrong value at 871";
 
-  if (b1.lock()->get(872,1) != 742.944)
-    std::cerr << "ERROR: b1get gives wrong value " << b1.lock()->get(872,1)<< " at 872";
+  if (b1.lock()->get(872,0) != 742.944)
+    std::cerr << "ERROR: b1get gives wrong value " << b1.lock()->get(872,0)<< " at 872";
 
   pl.reset();
 
@@ -79,9 +79,9 @@ void test_policy(){
 
 int main(int argc, char** argv){
 
-  test_policy();
+  //  test_policy();
 
-  size_t Nchunks(1000);
+  size_t Nchunks(10);
 	      
   if (argc == 2){
     std::istringstream iss(argv[1]);

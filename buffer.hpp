@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <fstream>
-
+#include <mutex>
 
 template <class T> 
 
@@ -32,6 +32,8 @@ public:
 private:
 
   filer();
+
+  std::mutex filemutex_;
 
   std::string filename_;
 

@@ -37,6 +37,9 @@ void filer<T>::read_chunk( size_t pos, T* d){
 	    "Filer:read_chunk: pos exceeds file size in reading.");
 
   size_t p( pos * chunk_byte_size_);
+
+  std::lock_guard<std::mutex> lg(filemutex_);
+
   ffile_.seekg( p );
 
   ffile_.read((char*)d, chunk_byte_size_ );
@@ -48,6 +51,7 @@ void filer<T>::read_chunk( size_t pos, T* d){
 template <class T>
 void filer<T>::write_chunk( size_t pos,
 			    const T* d){
+  std::lock_guard<std::mutex> lg(filemutex_);
   if (size_ <= pos){
     size_t missing(pos - size_); 
     // if size=pos I do not need to write intermediates

@@ -23,8 +23,9 @@ public:
   using abstract_policy<T>::get_mapper;
 
   policy_list(size_t max_in_mem, 
-	      size_t chunk_size): 
-    abstract_policy<T>(chunk_size),
+	      size_t chunk_size,
+	      size_t nth): 
+    abstract_policy<T>(chunk_size,nth),
     in_memory_size_(0),
     max_in_mem_(max_in_mem)
   {}; 

@@ -23,6 +23,17 @@ public:
   }
 };
 
+class E_invalid_node_copy: public std::exception{
+public:
+  E_invalid_node_copy(){};
+  
+  ~E_invalid_node_copy() throw() {};
+
+  const char* what() const throw(){
+    return "Tried to copy a non-empty node, code is malformed!";
+  }
+};
+
 template< class T >
 struct node{
 
@@ -35,12 +46,20 @@ struct node{
     
   chunk data;
 
-  bool locked;
+  std::mutex mut_ex;
 
   node():
     status(empty),
     data()
     
+  {};
+
+  // nodes should never be copied
+  node(const node&) = delete;
+
+  node(node&& n) noexcept:
+  status(n.status),
+  data(std::move(n.data))			     
   {}
 };
 
@@ -53,13 +72,18 @@ public:
   typedef typename node<T>::chunk chunk;
   typedef std::shared_ptr<mapper<T> > p_mapper;
  
-  abstract_policy(size_t chunk_size): 
+  abstract_policy(size_t chunk_size,
+		  size_t nth):    
+    nthread_(nth),
     chunk_size_(chunk_size)
   {}; 
 
   virtual ~abstract_policy(){};
 
   size_t chunk_size(){ return chunk_size_;}
+
+
+  size_t nthread() const { return nthread_;};
 
   // keep track of mapper, assign index i
   // return assigned index
@@ -110,6 +134,8 @@ protected:
     return mappers.end();};
 
 private:  
+
+  size_t nthread_;
 
   std::mutex mutex_mappers;
 

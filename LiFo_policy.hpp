@@ -39,12 +39,11 @@ public:
 
   policy_LiFo(size_t max_in_mem, 
 	      size_t chunk_size,
-	      size_t nthread): 
-    policy_list<T>(max_in_mem, chunk_size),
-    nthread_(nthread),
-    threadswap(2*nthread, chunkindex(std::string::npos, std::string::npos))
+	      size_t nth): 
+    policy_list<T>(max_in_mem, chunk_size, nth),
+    threadswap(2*nth, chunkindex(std::string::npos, std::string::npos))
   {
-    if (max_in_mem < 2*nthread)
+    if (max_in_mem < 2*abstract_policy<T>::nthread())
       throw E_Policy_error("policy_LiFo constructor: "
 			   "Too small max_in_mem for number of threads!");
   }; 
@@ -55,12 +54,10 @@ public:
 private:
   policy_LiFo();
 
-  size_t nthread_;
-
   std::vector< chunkindex > threadswap; // Last storage space for swapping out threads
 
   size_t navail(){
-    return max_in_mem() - 2 * nthread_;
+    return max_in_mem() - 2 * abstract_policy<T>::nthread();
   };
 
   chunk find_memory(size_t threadnum) OVERRIDE{
@@ -68,7 +65,7 @@ private:
       return chunk(abstract_policy<T>::chunk_size(),0);
     }else{
 
-      if (threadnum >= nthread_)
+      if (threadnum >= abstract_policy<T>::nthread())
 	throw E_Policy_error("LiFo_policy:find_memory: Threadnum invalid!");
 
       chunkindex ci(threadswap[threadnum*2]);
@@ -98,8 +95,9 @@ public:
   using abstract_policy<T>::get_mapper;
 
   policy_LiLo(size_t max_in_mem, 
-	      size_t chunk_size): 
-    policy_list<T>(max_in_mem, chunk_size)
+	      size_t chunk_size,
+	      size_t nth): 
+    policy_list<T>(max_in_mem, chunk_size, nth)
   {}; 
 
   virtual ~policy_LiLo(){
@@ -115,7 +113,6 @@ private:
 
   chunk find_memory(size_t) OVERRIDE{
     if ( policy_list<T>::in_memory_size() < max_in_mem()){
-      //      chunk c(abstract_policy<T>::chunk_size(),0);
       return chunk(abstract_policy<T>::chunk_size(),0);
     }else{
       auto pm(get_mapper(policy_list<T>::in_memory_back().i_mapper));
