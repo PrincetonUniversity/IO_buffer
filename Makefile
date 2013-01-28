@@ -13,7 +13,8 @@ else
 CPP=g++
 endif
 
-CFLAGS= -std=c++11 -Wall -Wextra -g -pedantic
+CFLAGS= -D_REENTRANT -std=c++11 -Wall -Wextra -g -pedantic
+LFLAGS= -lpthread
 
 # uncomment to make code faster but use less error-checking
 CFLAGS += -D FORBUF_FAST
@@ -28,7 +29,7 @@ libforbuf.a:	$(OBJECTS)
 	ranlib $@
 
 test:	$(OBJECTS) testit.o
-	$(CPP) $(CFLAGS) testit.o $(OBJECTS) -o test
+	$(CPP) testit.o $(OBJECTS) -o test $(LFLAGS)
 
 .cpp.o:
 	$(CPP) -c $(CFLAGS) $< -o $@

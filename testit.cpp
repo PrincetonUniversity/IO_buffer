@@ -5,6 +5,71 @@
 #include "fortranAPI_handler.hpp"
 #include "fortran_api.hpp"
 
+#include <thread>
+#include <atomic>
+
+double finalsum;
+std::mutex finalsummutex;
+
+void do_work( size_t threadnum, size_t nthread, size_t RAMsize ){
+
+  double sum(0.);
+  
+  for (size_t i = threadnum; i < RAMsize; i += nthread){
+        for_buf_writeelement_(49,i,0.5892*i,threadnum);
+  }
+
+  for (size_t i = threadnum; i < RAMsize; i += nthread){
+    double value(i);
+    //    for_buf_readelement_(49,i,value,threadnum);
+    sum += value; 
+  }
+
+  for (size_t i = threadnum; i < RAMsize; i += nthread){
+    //    for_buf_writeelement_(49,i,0.5892*i,threadnum);
+  }
+
+  for (size_t i = threadnum; i < RAMsize; i += nthread){
+    double value(i);
+    //    for_buf_readelement_(49,i,value,threadnum);
+    sum -= value; 
+  }
+
+  finalsummutex.lock();
+  finalsum += sum;
+  finalsummutex.unlock();
+}
+
+void test_parallelization(size_t nthread, size_t Nchunk ){
+
+  FINT pool_id;
+
+  const size_t chunksize = 125000; // 1MB chunks
+  const size_t RAMsize= Nchunk * chunksize;
+
+  for_buf_construct_(Nchunk,chunksize,0,nthread,pool_id);
+
+  for_buf_openfile_(pool_id, 49, "buf_F2.dat",10);
+
+  finalsum = 0.;
+
+  std::vector<std::thread*> threads(nthread);
+
+  for (size_t ithread=0; ithread < nthread; ++ithread){
+    threads[ithread] = new std::thread(do_work,ithread+1,nthread,RAMsize); 
+  }
+
+  for (size_t ithread=0; ithread < nthread; ++ithread){
+    threads[ithread]->join();
+  }  
+  std::cout << "threads complete" << '\n';
+
+  std::cout << finalsum << '\n';
+  std::cout << "Prepare to remove" << '\n';
+
+  for_buf_removefile_(49);
+}
+
 void test_fortranapi(size_t Nchunk){
   FINT pool_id;
 
@@ -19,26 +84,26 @@ void test_fortranapi(size_t Nchunk){
   double value;
 
   for (size_t i = 0; i < RAMsize; ++i){
-    for_buf_writeelement_(48,i,1.281*i*i+0.5892*i,1);
+    for_buf_writeelement_(48,i,0.5892*i,1);
   }
   for (size_t i = 0; i < RAMsize; ++i){
     for_buf_readelement_(48,i,value,1);
     sum += value; 
   }
   for (size_t i = 0; i < RAMsize; ++i){
-    for_buf_writeelement_(48,i,1.281*i*i+0.5892*i,1);
+    for_buf_writeelement_(48,i,0.5892*i,1);
   }
   for (size_t i = 0; i < RAMsize; ++i){
     for_buf_readelement_(48,i,value,1);
-    sum += value; 
+    sum -= value; 
   }
 
   for_buf_readelement_(48,2583,value,1);
 
-  if (value != 1.281*2583*2583+0.5892*2583)
+  if (value != 0.5892*2583)
     std::cerr << "ERROR: Elemenct 2583 is wrong!\n";
 
-  std::cout << value << '\n';
+  std::cout << sum << '\n';
 
   for_buf_removefile_(48);
 }
@@ -77,39 +142,50 @@ void test_policy(){
   std::cout << "If no \"ERROR\" above, then test stage 1 is ok\n";
 }
 
+bool enter_number(size_t& n, const char* input, const char* message){
+  std::istringstream iss(input);
+
+  iss >> n;
+ 
+  char answer('a');
+
+  do {
+    std::cout << n << ' ' << message << ", ok?\n";
+
+    std::cin >> answer;
+
+    if (answer == 'n')
+      return false;
+
+    if (answer != 'y')
+      std::cout << "Please answer y or n\n";
+
+  } while (answer != 'y');
+      
+  return true;
+}
+
 int main(int argc, char** argv){
 
-  //  test_policy();
+  test_policy();
 
   size_t Nchunks(10);
+  size_t Nthreads(0);
 	      
-  if (argc == 2){
-    std::istringstream iss(argv[1]);
-
-    iss >> Nchunks;
- 
-    char answer('a');
-
-    do {
-      std::cout << "Processing " << Nchunks << " MB, ok?\n";
-
-      std::cin >> answer;
-
-      if (answer == 'n')
-	return 0;
-
-      if (answer != 'y')
-	std::cout << "Please answer y or n\n";
-
-    } while (answer != 'y');
-      
-    
-  }else{
-
-    std::cout << "Processing " << Nchunks << " MB" << '\n';
-
+  if (argc >= 2){
+    if (!enter_number(Nchunks,argv[1],"MB will be processed"))
+      return 0;
+  }
+  if (argc >= 3){
+    if (!enter_number(Nthreads,argv[2],"Threads will be launched"))
+      return 0;
   }
 
-  test_fortranapi(Nchunks);
-
+  if (Nthreads==0){
+    std::cout << "Launching with " << Nchunks << " chunks and no threads\n"; 
+    test_fortranapi(Nchunks);
+  }else{
+    std::cout << "Launching with " << Nchunks << " chunks and " << Nthreads << " threads\n"; 
+    test_parallelization(Nthreads, Nchunks); 
+  }
 }

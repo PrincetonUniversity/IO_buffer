@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <exception>
 #include <memory>
+#include <atomic>
 #include "buffer.hpp"
 
 #define FINT long long
@@ -140,6 +141,9 @@ private:
 
   };
 
+  std::atomic_int nodeusecount;
+  std::atomic_bool nodeusebarrier;
+
   std::vector<tcurrentinfo> currentinfo;
 
   size_t chunk_size;
@@ -160,7 +164,10 @@ private:
     chunk_size(m->chunk_size()),
     file_data(bufferfile.c_str(), chunk_size),
     my_mapperid(ind)
-  {};    
+  {    
+    nodeusecount.store(0);
+    nodeusebarrier.store(false);
+  };    
 
   void sync_chunk_( size_t chunk_index){
     node<T>& cn(nodes[chunk_index]);
@@ -169,6 +176,10 @@ private:
   };
 
   chunk release_chunk_(size_t chunk_index, bool save){    
+
+    while (nodeusebarrier.exchange(true)){};
+    ++nodeusecount;
+    nodeusebarrier = false;
 
     node<T>& cn(nodes[chunk_index]);
 
@@ -209,6 +220,7 @@ private:
     chunk c;
     c.swap(cn.data);
     // the lock_guard frees the mut_ex
+    --nodeusecount;
     return c;    
   };
 
@@ -233,10 +245,20 @@ private:
     ci.mut_ex.unlock();
     // mut_ex is unlocked to avoid possible deadlock while we search for memory
 
-    // if too small nodes, then resize to a bit larger, 
-    // to avoid much resizing in the beginning
-    if (index >= nodes.size())
+    // if too small nodes, then we have a problem: need to
+    // resize without breaking other threads 
+
+    // Herb Sutters spinlock
+    while (nodeusebarrier.exchange(true)){};
+    if (index >= nodes.size()){
+      // problem: if we just resize, then
+      // we might copy, and that will break many things,
+      // so we need to wait for all other threads
+      while (nodeusecount){};
       nodes.resize(index+20);
+    }
+    ++nodeusecount;
+    nodeusebarrier = false;
 
     node<T>& cn(nodes[index]);    
     std::lock_guard<std::mutex> lg(cn.mut_ex);
@@ -271,6 +293,7 @@ private:
       ci.writeindex = index;
     }
 
+    --nodeusecount;
     // lock_guard frees mutex for cn here
   };
 
@@ -293,6 +316,7 @@ private:
 
     // node is now correct, do atomic write
     *(ci.cchunk + offset) = t;
+
   };
 
   // change N values starting from pos to t

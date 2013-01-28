@@ -4,6 +4,8 @@
 #include "mapper.hpp"
 #include "LiFo_policy.hpp"
 
+#include <mutex>
+
 p_abstract_policy fortranapi::getpolicy( FINT pool_id ){
 
   if (static_cast<size_t>(pool_id) >= pools.size())
