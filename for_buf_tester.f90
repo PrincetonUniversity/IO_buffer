@@ -15,8 +15,8 @@ integer::i,j,c,iostat
 integer::for_buf_poolID
 real(kind=8)::tmp
 integer(kind=4),parameter::seed=86456
-integer,parameter::unitInp=20
-integer,parameter::unitFile=22
+integer,parameter::unitInp=200
+integer,parameter::unitFile=220
 
 ! setup the calculation
 open(unit=unitInp,status="old",action="read",file="forbuf.inp")
@@ -26,7 +26,7 @@ read(unitInp,*) dim1
 read(unitInp,*) dim2
 read(unitInp,*) blockSize
 read(unitInp,*) numBlocks
-close(unitInp)
+!close(unit=unitInp,status="keep") please do not close file, causes segfault because of POTATO!
 
 write(*,*) "Configuration for this test:"
 write(*,*) "Threads for writing ",numThreadsWrite
@@ -52,7 +52,11 @@ enddo
 
 ! initialize our for_buf
 call for_buf_construct(numBlocks,blockSize,0,max(numThreadsRead,numThreadsWrite),for_buf_poolID)
-call for_buf_openfile(for_buf_poolID,'forbuf.dat',unitFile)
+write(*,*) "Constructed buffer with following settings:"
+write(*,*) "Pool ID ",for_buf_poolID
+write(*,*) "Maximum concurrency ",max(numThreadsRead,numThreadsWrite)
+flush(6)
+call for_buf_openfile(for_buf_poolID, unitFile, 'forbuf.dat',10)
 
 ! write them out
 call omp_set_num_threads(numThreadsWrite)
@@ -76,6 +80,9 @@ enddo
 
 ! synchronize stuff to disk for posteriori analysis
 call for_buf_flushpool(for_buf_poolID)
+
+write(*,*) "Writing sweep complete. Reading back in..."
+flush(6)
 
 ! read in and compare to the stored data
 call omp_set_num_threads(numThreadsRead)
@@ -111,5 +118,8 @@ if(iostat .ne. 0) then
    flush(6)
    stop 
 endif
+
+write(*,*) "Test successfully completed! :-)"
+flush(6)
 
 end program for_buf_tester
