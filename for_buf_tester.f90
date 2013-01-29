@@ -15,8 +15,8 @@ integer::i,j,c,iostat
 integer::for_buf_poolID
 real(kind=8)::tmp
 integer(kind=4),parameter::seed=86456
-integer,parameter::unitInp=200
-integer,parameter::unitFile=220
+integer(kind=4),parameter::unitInp=200
+integer(kind=4),parameter::unitFile=220
 
 ! setup the calculation
 open(unit=unitInp,status="old",action="read",file="forbuf.inp")
