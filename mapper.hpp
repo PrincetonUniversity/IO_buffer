@@ -144,6 +144,9 @@ private:
   std::atomic_int nodeusecount;
   std::atomic_bool nodeusebarrier;
 
+  std::atomic_int nodereleasecount;
+  std::atomic_bool nodereleasebarrier;
+
   std::vector<tcurrentinfo> currentinfo;
 
   size_t chunk_size;
@@ -167,6 +170,8 @@ private:
   {    
     nodeusecount.store(0);
     nodeusebarrier.store(false);
+    nodereleasecount.store(0);
+    nodereleasebarrier.store(false);
   };    
 
   void sync_chunk_( size_t chunk_index){
@@ -177,9 +182,9 @@ private:
 
   chunk release_chunk_(size_t chunk_index, bool save){    
 
-    while (nodeusebarrier.exchange(true)){};
-    ++nodeusecount;
-    nodeusebarrier = false;
+    while (nodereleasebarrier.exchange(true)){};
+    ++nodereleasecount;
+    nodereleasebarrier = false;
 
     node<T>& cn(nodes[chunk_index]);
 
@@ -220,7 +225,8 @@ private:
     chunk c;
     c.swap(cn.data);
     // the lock_guard frees the mut_ex
-    --nodeusecount;
+    --nodereleasecount;
+
     return c;    
   };
 
@@ -255,7 +261,11 @@ private:
       // we might copy, and that will break many things,
       // so we need to wait for all other threads
       while (nodeusecount){};
+      // also assert that no node is being released right now
+      while (nodereleasebarrier.exchange(true)){};
+      while (nodereleasecount){};
       nodes.resize(index+20);
+      nodereleasebarrier = false;
     }
     ++nodeusecount;
     nodeusebarrier = false;
