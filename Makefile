@@ -19,6 +19,9 @@ LFLAGS= -lpthread
 # uncomment to make code faster but use less error-checking
 CFLAGS += -D FORBUF_FAST
 
+# uncomment to have fortran code write DEBUG info
+#CFLAGS += -D DEBUG_FORBUF
+
 all:	libforbuf.a binary_to_ascii
 
 binary_to_ascii:	binary_to_ascii.o
@@ -28,8 +31,11 @@ libforbuf.a:	$(OBJECTS)
 	ar vr $@ $?
 	ranlib $@
 
-test:	$(OBJECTS) testit.o
+test:	$(OBJECTS) testit.o for_buf_tester
 	$(CPP) testit.o $(OBJECTS) -o test $(LFLAGS)
+
+for_buf_tester:	libforbuf.a for_buf_tester.f90
+	./compileTest.sh
 
 .cpp.o:
 	$(CPP) -c $(CFLAGS) $< -o $@

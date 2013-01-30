@@ -26,7 +26,7 @@ read(unitInp,*) dim1
 read(unitInp,*) dim2
 read(unitInp,*) blockSize
 read(unitInp,*) numBlocks
-!close(unit=unitInp,status="keep") please do not close file, causes segfault because of POTATO!
+close(unit=unitInp) !please do not close file, causes segfault because POTATOE!
 
 write(*,*) "Configuration for this test:"
 write(*,*) "Threads for writing ",numThreadsWrite
@@ -63,7 +63,7 @@ call omp_set_num_threads(numThreadsWrite)
 
 !$omp parallel &
 !$omp default(none) &
-!$omp private(c,threadID) &
+!$omp private(c,threadID,i) &
 !$omp shared(testmat,dim1,dim2)
 !$omp do schedule(static)
 do j=1,dim2
@@ -89,7 +89,7 @@ call omp_set_num_threads(numThreadsRead)
 
 !$omp parallel &
 !$omp default(none) &
-!$omp private(c,threadID,tmp) &
+!$omp private(c,threadID,tmp,i) &
 !$omp shared(testmat,dim1,dim2)
 !$omp do schedule(static)
 do j=1,dim2
