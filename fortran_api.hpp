@@ -29,6 +29,10 @@ void for_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filen
 extern "C"
 void for_buf_writeelement_( const FINT& unit, const FINT& pos, const double& value, const FINT& threadnum);
 
+/* write a block of elements to the file unit into block block */
+extern "C"
+void for_buf_writeblock_( const FINT& unit, const FINT& block, const double* values, const FINT& threadnum);
+
 /* write N elements to the file unit starting at position pos */
 extern "C"
 void for_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& N, const double* values, const FINT& threadnum);
@@ -36,6 +40,10 @@ void for_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& N, cons
 /* read one element from the file unit at position pos */
 extern "C"
 void for_buf_readelement_( const FINT& unit, const FINT& pos, double& value, const FINT& threadnum);
+
+/* read a block of elements from file unit and block block */
+extern "C"
+void for_buf_readblock_( const FINT& unit, const FINT& block, const double* values, const FINT& threadnum);
 
 /* read N elements from the file unit starting at position pos */
 extern "C"
