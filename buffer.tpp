@@ -31,10 +31,12 @@ filer<T>::filer( const std::string& file_name,
 template <class T>
 void filer<T>::read_chunk( size_t pos, T* d){
 
-  if (pos >= size_)
+  if (pos >= size_){
+    std::cerr << "Error : Chunk index " << pos << " in file " << filename() << " exceeds filesize!"; 
     throw 
       std::ios_base::failure(
 	    "Filer:read_chunk: pos exceeds file size in reading.");
+  }
 
   size_t p( pos * chunk_byte_size_);
 
