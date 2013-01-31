@@ -10,8 +10,10 @@
 #include <algorithm>
 #include <exception>
 #include <memory>
+#include <cstring>
 #include <atomic>
 #include "buffer.hpp"
+#include "spin_lock.hpp"
 
 #define FINT long long
 
@@ -81,12 +83,19 @@ public:
 	   size_t N, 
 	   const T* t, 
 	   size_t threadnum) { set_(pos, N, t, threadnum);};
+  void setchunk(size_t N, 
+		const T* t, 
+		size_t threadnum) { setchunk_(N, t, threadnum);};
 
   T get(size_t pos, size_t threadnum) { return get_(pos, threadnum);};  
   void get(size_t pos, 
 	   size_t N, 
 	   T* t, 
-	   size_t threadnum) { return get_(pos, N, t, threadnum);};  
+	   size_t threadnum) { get_(pos, N, t, threadnum);};  
+  void getchunk(size_t N, 
+		T* t,
+		size_t threadnum) { getchunk_(N, t, threadnum);};  
+
 
   // write all buffers to disk
   void flush(){ write_buffers_(true);};
@@ -133,7 +142,7 @@ private:
     // mutex to assert that if one thread frees the node this ci points to,
     // nothing bad happens. Will lock this mutex to (a) use the cchunk and
     // (b) free the associated node
-    std::mutex mut_ex;
+    spin_mutex mut_ex;
 
     tcurrentinfo():index(-1),
 		   writeindex(-1)
@@ -189,7 +198,7 @@ private:
     node<T>& cn(nodes[chunk_index]);
 
     // lock access to the chunk node
-    std::lock_guard<std::mutex> lg(cn.mut_ex);
+    std::lock_guard< decltype(cn.mut_ex) > lg(cn.mut_ex);
 
     //lock all the current_info muteces, 
     // if they point to node in question, wait for them
@@ -201,7 +210,7 @@ private:
 		    // node that is about to expire above,
 		    // the check below is save
 		    if (chunk_index == t.index){
-		      std::lock_guard<std::mutex> lg(t.mut_ex);
+		      std::lock_guard< decltype(t.mut_ex) > lg(t.mut_ex);
 		      // recheck, since we lock only inside the if, the
 		      // index value might have changed
 		      // we do it this way to avoid unnecessarily locking
@@ -271,7 +280,7 @@ private:
     nodeusebarrier = false;
 
     node<T>& cn(nodes[index]);    
-    std::lock_guard<std::mutex> lg(cn.mut_ex);
+    std::lock_guard< decltype(cn.mut_ex) > lg(cn.mut_ex);
 
     // if cn.data not associated, we need to get memory and potentially load it
     if (!cn.data.size()){      
@@ -315,7 +324,7 @@ private:
     ++stat.n_write_buff;
 
     tcurrentinfo& ci(currentinfo[threadnum]);
-    std::lock_guard<std::mutex> lg(ci.mut_ex);
+    std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
 
     // if node is not correct, set mutex free again, ask for correct one
     if (index != ci.writeindex){
@@ -335,7 +344,7 @@ private:
     size_t offset=pos%chunk_size;
 
     tcurrentinfo& ci(currentinfo[threadnum]);
-    std::lock_guard<std::mutex> lg(ci.mut_ex);
+    std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
 
     if (index != ci.writeindex){
       prepare_node( index, ci, threadnum, true);
@@ -355,6 +364,25 @@ private:
     stat.n_write_buff += N;
   };
 
+  void setchunk_(size_t index, const T* t, size_t threadnum){
+
+    ++stat.n_read_buff;
+
+    tcurrentinfo& ci(currentinfo[threadnum]);
+    std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
+
+    if (index != ci.index){
+      prepare_node(index, ci, threadnum, false);
+    }
+
+    ++stat.n_read_buff += chunk_size;
+
+    const T* p_source(t);
+    T* p_target(&(*ci.cchunk));
+
+    memcpy(p_target, p_source, chunk_size * sizeof(T) );
+  };
+
   T get_(size_t pos, size_t threadnum){
     size_t index=pos / chunk_size;
     size_t offset=pos%chunk_size;
@@ -362,7 +390,7 @@ private:
     ++stat.n_read_buff;
 
     tcurrentinfo& ci(currentinfo[threadnum]);
-    std::lock_guard<std::mutex> lg(ci.mut_ex);
+    std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
 
     if (index != ci.index){
       prepare_node(index, ci, threadnum, false);
@@ -378,7 +406,7 @@ private:
     size_t offset=pos%chunk_size;
     
     tcurrentinfo& ci(currentinfo[threadnum]);
-    std::lock_guard<std::mutex> lg(ci.mut_ex);
+    std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
 
     if (index != ci.writeindex){
       prepare_node( index, ci, threadnum, false);
@@ -396,6 +424,25 @@ private:
       *(p_target++) = *(p_source++);
     }
     stat.n_read_buff += N;
+  };
+
+  void getchunk_(size_t index, T* t, size_t threadnum){
+
+    ++stat.n_read_buff;
+
+    tcurrentinfo& ci(currentinfo[threadnum]);
+    std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
+
+    if (index != ci.index){
+      prepare_node(index, ci, threadnum, false);
+    }
+
+    ++stat.n_read_buff += chunk_size;
+
+    T* p_target(t);
+    const T* p_source(&(*ci.cchunk));
+
+    memcpy(p_target, p_source, chunk_size * sizeof(T) );
   };
 };
 

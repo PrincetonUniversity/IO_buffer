@@ -78,6 +78,11 @@ public:
     getfilep(unit)->set(pos, value, threadnum);
   };
 
+  void writeBlock( const FINT& unit,
+		   const FINT& blockid,
+		   const double* values,
+		   const FINT& threadnum);
+
   void writeArray( const FINT& unit,
 		   const FINT& pos,
 		   const FINT& N,
@@ -88,6 +93,11 @@ public:
 		      const FINT& pos,
 		      const FINT& threadnum){
     return getfilep(unit)->get(pos, threadnum);}
+
+  void readBlock( const FINT& unit,
+		  const FINT& blockid,
+		  double* values,
+		  const FINT& threadnum);
 
   void readArray( const FINT& unit,
 		  const FINT& pos,

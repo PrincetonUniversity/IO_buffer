@@ -77,7 +77,7 @@ void for_buf_writeblock_( const FINT& unit, const FINT& block, const double* val
             << "block    =" << block << '\n'
             << "threadnum=" << threadnum << '\n';
 #endif
-  // todo implementation
+  fortranapi::get().writeBlock(unit, block-1, values, threadnum-1);
 }
 
 extern "C"
@@ -113,7 +113,7 @@ void for_buf_readelement_( const FINT& unit, const FINT& pos, double& value, con
 }
 
 extern "C"
-void for_buf_readblock_( const FINT& unit, const FINT& block, const double* values, const FINT& threadnum){
+void for_buf_readblock_( const FINT& unit, const FINT& block, double* values, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_buf_readblock\n";
@@ -122,7 +122,7 @@ void for_buf_readblock_( const FINT& unit, const FINT& block, const double* valu
             << "block    =" << block << '\n'
             << "threadnum=" << threadnum << '\n';
 #endif
-  // todo implementation
+  fortranapi::get().readBlock(unit, block-1, values, threadnum-1);
 }
 
 extern "C"

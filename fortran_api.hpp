@@ -43,7 +43,7 @@ void for_buf_readelement_( const FINT& unit, const FINT& pos, double& value, con
 
 /* read a block of elements from file unit and block block */
 extern "C"
-void for_buf_readblock_( const FINT& unit, const FINT& block, const double* values, const FINT& threadnum);
+void for_buf_readblock_( const FINT& unit, const FINT& block, double* values, const FINT& threadnum);
 
 /* read N elements from the file unit starting at position pos */
 extern "C"

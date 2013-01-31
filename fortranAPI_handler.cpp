@@ -71,12 +71,26 @@ void fortranapi::writeArray( const FINT& unit,
   getfilep(unit)->set(pos, N, values, threadnum);
 }
 
+void fortranapi::writeBlock( const FINT& unit,
+			     const FINT& blockid,
+			     const double* values,
+			     const FINT& threadnum){
+  getfilep(unit)->setchunk(blockid, values, threadnum);
+}
+
 void fortranapi::readArray( const FINT& unit,
 			    const FINT& pos,
 			    const FINT& N,
 			    double* values,
 			    const FINT& threadnum){
   getfilep(unit)->get(pos, N, values, threadnum);
+}
+
+void fortranapi::readBlock( const FINT& unit,
+			    const FINT& blockid,
+			    double* values,
+			    const FINT& threadnum){
+  getfilep(unit)->getchunk(blockid, values, threadnum);
 }
 
 void fortranapi::closefile( const FINT& unit){
