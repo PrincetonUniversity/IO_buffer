@@ -1,5 +1,4 @@
 #include "buffer.hpp"
-#include "buffer.tpp"
 #include "mapper.hpp"
 #include "LiFo_policy.hpp"
 #include "fortranAPI_handler.hpp"

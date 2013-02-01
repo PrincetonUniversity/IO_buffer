@@ -17,6 +17,8 @@
 
 #define FINT long long
 
+typedef std::mutex spin_mutex;
+
 struct statistics{
   size_t n_read_buff;
   size_t n_read_file;
@@ -71,7 +73,9 @@ public:
     p_abstract_policy pol(policy.lock());
       // if the pol is already destroyed, the mem has already been
       // deallocated,
+#ifdef COLLECT_STATISTICS
     stat.dump(filename() + ".stat");
+#endif
     if (pol){
       pol->return_all_mem(my_mapperid);
     }};
@@ -225,9 +229,12 @@ private:
     if ( save && cn.status==node<T>::modified){
       
       file_data.write_chunk(chunk_index,&cn.data[0]);
+#ifdef COLLECT_STATISTICS
       ++stat.n_write_file;
+
     }else{
       ++stat.n_not_modified;
+#endif
     }
 
     cn.status=node<T>::stored;
@@ -291,11 +298,15 @@ private:
       if (cn.status == node<T>::stored){
 	// load it from disk if it is on disk
 	file_data.read_chunk(index, &(cn.data[0]));
+#ifdef COLLECT_STATISTICS
 	++stat.n_read_file;
+#endif
       }else{
 	// blank the memory, as it still contains swapped-out block
 	std::fill(cn.data.begin(), cn.data.end(), 0);
+#ifdef COLLECT_STATISTICS
 	++stat.n_blanked;
+#endif
       }
 
       cn.status=node<T>::loaded;
@@ -321,7 +332,9 @@ private:
     size_t index=pos / chunk_size;
     size_t offset=pos%chunk_size;
 
+#ifdef COLLECT_STATISTICS
     ++stat.n_write_buff;
+#endif
 
     tcurrentinfo& ci(currentinfo[threadnum]);
     std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
@@ -329,9 +342,12 @@ private:
     // if node is not correct, set mutex free again, ask for correct one
     if (index != ci.writeindex){
       prepare_node( index, ci, threadnum, true);
-    }else{
+    }
+#ifdef COLLECT_STATISTICS
+else{
       ++stat.n_fastwrite;
     }
+#endif
 
     // node is now correct, do atomic write
     *(ci.cchunk + offset) = t;
@@ -361,21 +377,27 @@ private:
       }
       *(p_target++) = *(p_source++);
     }
+#ifdef COLLECT_STATISTICS
     stat.n_write_buff += N;
+#endif
   };
 
   void setchunk_(size_t index, const T* t, size_t threadnum){
 
+#ifdef COLLECT_STATISTICS
     ++stat.n_read_buff;
+#endif
 
     tcurrentinfo& ci(currentinfo[threadnum]);
     std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
 
     if (index != ci.index){
-      prepare_node(index, ci, threadnum, false);
+      prepare_node(index, ci, threadnum, true);
     }
 
+#ifdef COLLECT_STATISTICS
     ++stat.n_read_buff += chunk_size;
+#endif
 
     const T* p_source(t);
     T* p_target(&(*ci.cchunk));
@@ -387,16 +409,21 @@ private:
     size_t index=pos / chunk_size;
     size_t offset=pos%chunk_size;
  
+#ifdef COLLECT_STATISTICS
     ++stat.n_read_buff;
+#endif
 
     tcurrentinfo& ci(currentinfo[threadnum]);
     std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
 
     if (index != ci.index){
       prepare_node(index, ci, threadnum, false);
-    }else{
+    }
+#ifdef COLLECT_STATISTICS
+    else{
       ++stat.n_fastread;
     }
+#endif
 
     return *(ci.cchunk + offset);
   };
@@ -423,12 +450,16 @@ private:
       }
       *(p_target++) = *(p_source++);
     }
+#ifdef COLLECT_STATISTICS
     stat.n_read_buff += N;
+#endif
   };
 
   void getchunk_(size_t index, T* t, size_t threadnum){
 
+#ifdef COLLECT_STATISTICS
     ++stat.n_read_buff;
+#endif
 
     tcurrentinfo& ci(currentinfo[threadnum]);
     std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
@@ -437,7 +468,9 @@ private:
       prepare_node(index, ci, threadnum, false);
     }
 
+#ifdef COLLECT_STATISTICS
     ++stat.n_read_buff += chunk_size;
+#endif
 
     T* p_target(t);
     const T* p_source(&(*ci.cchunk));

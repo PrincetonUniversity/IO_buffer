@@ -47,4 +47,5 @@ private:
 
 };
 
+#include "buffer.tpp"
 #endif

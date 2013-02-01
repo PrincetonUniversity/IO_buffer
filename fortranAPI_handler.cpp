@@ -1,6 +1,5 @@
 #include "fortranAPI_handler.hpp"
 #include "buffer.hpp"
-#include "buffer.tpp"
 #include "mapper.hpp"
 #include "LiFo_policy.hpp"
 
@@ -107,7 +106,8 @@ void fortranapi::removefile( const FINT& unit){
   files[unit] = NULL; // remove shared_ptr, 
   // not getfilep(unit).reset(), that would just reset the temporary 
 
-  std::system(oss.str().c_str());  
+  if (std::system(oss.str().c_str()) == -1)
+    std::cerr << "Error on command " << oss.str() << '\n';
 }
 
 void fortranapi::flushfile( const FINT& unit){
@@ -140,7 +140,8 @@ void fortranapi::removepool( const FINT& poolid){
       }
     }
   pp.reset();
-  std::system(oss.str().c_str());
+  if (std::system(oss.str().c_str()) == -1)
+    std::cerr << "Error on command " << oss.str() << '\n';
 }
 
 void fortranapi::flushpool( const FINT& poolid){

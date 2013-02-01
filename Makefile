@@ -13,7 +13,8 @@ else
 CPP=g++
 endif
 
-CFLAGS= -D_REENTRANT -std=c++11 -Wall -Wextra -g -pedantic
+#CFLAGS= -D_REENTRANT -std=c++11 -Wall -Wextra -g -pedantic
+CFLAGS= -D_REENTRANT -std=c++11 -O3 -Wall -Wextra -g -pedantic
 LFLAGS= -lpthread
 
 # uncomment to make code faster but use less error-checking
