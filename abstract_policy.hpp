@@ -3,6 +3,7 @@
 
 #include <list>
 #include <mutex>
+#include <algorithm>
 #include <map>
 #include <vector>
 #include <exception>
@@ -82,7 +83,6 @@ public:
 
   size_t chunk_size(){ return chunk_size_;}
 
-
   size_t nthread() const { return nthread_;};
 
   // keep track of mapper, assign index i
@@ -91,20 +91,36 @@ public:
 
   // free all memory owned by mapper index, save them if save==true
   void return_all_mem( size_t index,
-		       bool save = true ){ return_all_mem_(index, save); };
+		       bool save = true ){ 
+    remove_tmp_chunks_in_mapper_(index);
+    return_all_mem_(index, save); };
 
   // free all memory owned by mapper index, close the file, 
   // save the memory to disk if save==true
   void remove_mapper( size_t index,
-		      bool save = true){ remove_mapper_(index, save);};
+		      bool save = true){ 
+    remove_tmp_chunks_in_mapper_(index); 
+    remove_mapper_(index, save);};
 
-  void sync( size_t index ){ sync_(index);}
-  void sync(){ sync_();}
+  // sync contents of one file
+  void sync( size_t index ){ 
+    remove_tmp_chunks_in_mapper_(index); 
+    sync_(index);}
+
+  // sync all contents to file
+  void sync(){     
+    remove_tmp_chunks_in_mappers_(); 
+    sync_();}
 
   // free all memory, save them if save==true
-  void return_all_mem(){ return_all_mem_( true ); };
+  void return_all_mem(){ 
+    remove_tmp_chunks_in_mappers_(); 
+    return_all_mem_( true ); };
+
   // free all memory, save them if save==true
-  void forget_all_mem(){ return_all_mem_( false ); };
+  void forget_all_mem(){ 
+    remove_tmp_chunks_in_mappers_(); 
+    return_all_mem_( false ); };
 
   // get a chunk of memory for buffer, at pos
   chunk get_memory(size_t index,
@@ -148,6 +164,17 @@ private:
   virtual void return_all_mem_(size_t, bool) = 0;
 
   virtual void return_all_mem_( bool ) = 0;
+
+  void remove_tmp_chunks_in_mappers_(){
+    std::for_each( mappers.begin(), mappers.end(), 
+		   []( std::pair<size_t, p_mapper> p){
+		     p.second->remove_temporary_chunks();
+		   });
+  }
+
+  void remove_tmp_chunks_in_mapper_( size_t mapper_id ){
+    get_mapper(mapper_id)->remove_temporary_chunks();
+  }
 
   virtual chunk get_memory_(size_t index, 
 			      size_t pos, 

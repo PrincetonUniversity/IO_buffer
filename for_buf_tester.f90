@@ -110,7 +110,9 @@ enddo
 !$omp end parallel
 
 ! close the for buf
-call for_buf_closepool(for_buf_poolID)
+call for_buf_removepool(for_buf_poolID)
+
+!call for_buf_removefile(unitFile)
 
 deallocate(testmat,stat=iostat)
 if(iostat .ne. 0) then

@@ -78,7 +78,9 @@ public:
 #endif
     if (pol){
       pol->return_all_mem(my_mapperid);
-    }};
+    }
+    ensure_all_chunks_stored_();
+  };
 
   void set(size_t pos, 
 	   const T& t, 
@@ -106,11 +108,19 @@ public:
   // free all buffers without saving
   void forget(){ write_buffers_(false);};
 
+  // 
+  void remove_temporary_chunks(){ ensure_all_chunks_stored_();};
+
+  // write buffer to disk if modified, but keep it in memory
   void sync(size_t chunk_index){ sync_chunk_(chunk_index);};
 
-  // API with pool
+  // API with pool, save determines whether we write chunk to disk
+  // before returning, force whether we will also release 
+  // a chunk currently used by another thread
   chunk release_chunk( size_t chunk_index,
-		       bool save=true){ return release_chunk_(chunk_index, save);};
+		       bool save=true,
+		       bool force=true){ 
+    return release_chunk_(chunk_index, save, force);};
 
   const std::string& filename() const { return file_data.filename();};
 
@@ -146,10 +156,18 @@ private:
     // mutex to assert that if one thread frees the node this ci points to,
     // nothing bad happens. Will lock this mutex to (a) use the cchunk and
     // (b) free the associated node
-    spin_mutex mut_ex;
+
+    // alive ... provide fast access to node index, managed by policy
+    // zombie ... chunk already freed by policy, but still here
+    //            because one thread needs it
+    // ghost ... like zombie, but no save if it finally dies
+    enum status_type {alive, zombie, ghost};
+  
+    status_type status;
 
     tcurrentinfo():index(-1),
-		   writeindex(-1)
+		   writeindex(-1),
+		   status(alive)
     {};
 
   };
@@ -189,42 +207,49 @@ private:
 
   void sync_chunk_( size_t chunk_index){
     node<T>& cn(nodes[chunk_index]);
-    if ( cn.status==node<T>::modified)
+    if ( cn.status==node<T>::modified){
       file_data.write_chunk(chunk_index,&cn.data[0]);    
+      cn.status = node<T>::stored;
+    }
   };
 
-  chunk release_chunk_(size_t chunk_index, bool save){    
+  bool deprecate_use(size_t chunk_index,
+		     bool save,
+		     bool force){
 
-    while (nodereleasebarrier.exchange(true)){};
-    ++nodereleasecount;
-    nodereleasebarrier = false;
-
-    node<T>& cn(nodes[chunk_index]);
-
-    // lock access to the chunk node
-    std::lock_guard< decltype(cn.mut_ex) > lg(cn.mut_ex);
+    bool success(true);
 
     //lock all the current_info muteces, 
     // if they point to node in question, wait for them
     std::for_each(currentinfo.begin(),
 		  currentinfo.end(),
-		  [chunk_index](tcurrentinfo& t){
+		  [chunk_index, save, force, &success](tcurrentinfo& t){
 		    // t.index is guaranteed to only be pointed
 		    // to an unlocked node. since we lock the
 		    // node that is about to expire above,
-		    // the check below is save
+		    // only possibility is that some chunk already points at 
+		    // this node, then we cannot deallocate 
 		    if (chunk_index == t.index){
-		      std::lock_guard< decltype(t.mut_ex) > lg(t.mut_ex);
-		      // recheck, since we lock only inside the if, the
-		      // index value might have changed
-		      // we do it this way to avoid unnecessarily locking
-		      // all the mut_exes
-		      if (chunk_index == t.index){
-			t.index=-1; t.writeindex=-1;
+		      if (force){
+			t.index = -1;
+			t.writeindex = -1;
+		      }else{
+			if (save){
+			  t.status=tcurrentinfo::zombie;
+			}else{
+			  t.status=tcurrentinfo::ghost;
+			}
+			success = false;
 		      }
-		    }});
-    // this thread now has exclusive access to this node
+		    }
+		    });
 
+    return success;
+  }
+
+  void store_chunk_(node<T>& cn,
+		    size_t chunk_index,
+		    bool save){    
     // if it is modified, need to write changes
     if ( save && cn.status==node<T>::modified){
       
@@ -238,6 +263,40 @@ private:
     }
 
     cn.status=node<T>::stored;
+  };
+
+  void ensure_all_chunks_stored_(){
+    std::for_each(currentinfo.begin(),
+		  currentinfo.end(),
+		  [this](tcurrentinfo& t){
+		    this->invalidate_info(t);
+		  });
+  }
+
+  chunk release_chunk_(size_t chunk_index, 
+		       bool save,
+		       bool force){    
+
+    while (nodereleasebarrier.exchange(true)){};
+    ++nodereleasecount;
+    nodereleasebarrier = false;
+
+    node<T>& cn(nodes[chunk_index]);
+
+    // lock access to the chunk node
+    std::lock_guard< decltype(cn.mut_ex) > lg(cn.mut_ex);
+
+    // this thread now has exclusive access to this node
+
+    if ( ! deprecate_use(chunk_index, save, force) ){
+      // chunk is in use: create new chunk to return to policy
+      --nodereleasecount;
+      chunk c(chunk_size);      
+      return c;
+    }
+
+    store_chunk_(cn, chunk_index, save);
+
     chunk c;
     c.swap(cn.data);
     // the lock_guard frees the mut_ex
@@ -245,6 +304,34 @@ private:
 
     return c;    
   };
+
+  void invalidate_info( tcurrentinfo& ci ){
+
+    size_t oldindex = ci.index;
+    // mark currentinfo als invalid
+    ci.index = -1;
+    ci.writeindex = -1;
+
+    if (oldindex != static_cast<size_t>(-1)){
+      node<T>& cn(nodes[oldindex]);      
+      std::lock_guard< decltype(cn.mut_ex) > lg(cn.mut_ex);
+      
+      if (ci.status != tcurrentinfo::alive){
+	bool save = true;
+	if (ci.status == tcurrentinfo::ghost)
+	  save = false;
+	
+	if (deprecate_use(oldindex, save, false)){
+	  // we can now free chunk, no one uses it any more
+	  store_chunk_(cn, oldindex, save);
+	  cn.data.resize(0);
+	  cn.data.shrink_to_fit();
+	}
+      }      
+    }    
+    ci.status = tcurrentinfo::alive;    
+
+  }
 
   // write all buffers to file, free all the memory
   void write_buffers_(bool save){    
@@ -259,13 +346,6 @@ private:
 		     tcurrentinfo& ci, 
 		     size_t threadnum,
 		     const bool modify){
-
-    // mark currentinfo als invalid, free mutex for ci while we search for node
-
-    ci.index = -1;
-    ci.writeindex = -1;
-    ci.mut_ex.unlock();
-    // mut_ex is unlocked to avoid possible deadlock while we search for memory
 
     // if too small nodes, then we have a problem: need to
     // resize without breaking other threads 
@@ -284,6 +364,9 @@ private:
       nodereleasebarrier = false;
     }
     ++nodeusecount;
+
+    invalidate_info(ci);
+
     nodeusebarrier = false;
 
     node<T>& cn(nodes[index]);    
@@ -314,7 +397,6 @@ private:
     }
 
     // lock mutex again, update information
-    ci.mut_ex.lock();
     ci.index = index;
     ci.cchunk = cn.data.begin();
 
@@ -337,7 +419,6 @@ private:
 #endif
 
     tcurrentinfo& ci(currentinfo[threadnum]);
-    std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
 
     // if node is not correct, set mutex free again, ask for correct one
     if (index != ci.writeindex){
@@ -360,7 +441,6 @@ else{
     size_t offset=pos%chunk_size;
 
     tcurrentinfo& ci(currentinfo[threadnum]);
-    std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
 
     if (index != ci.writeindex){
       prepare_node( index, ci, threadnum, true);
@@ -389,7 +469,6 @@ else{
 #endif
 
     tcurrentinfo& ci(currentinfo[threadnum]);
-    std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
 
     if (index != ci.index){
       prepare_node(index, ci, threadnum, true);
@@ -414,7 +493,6 @@ else{
 #endif
 
     tcurrentinfo& ci(currentinfo[threadnum]);
-    std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
 
     if (index != ci.index){
       prepare_node(index, ci, threadnum, false);
@@ -433,7 +511,6 @@ else{
     size_t offset=pos%chunk_size;
     
     tcurrentinfo& ci(currentinfo[threadnum]);
-    std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
 
     if (index != ci.writeindex){
       prepare_node( index, ci, threadnum, false);
@@ -462,7 +539,6 @@ else{
 #endif
 
     tcurrentinfo& ci(currentinfo[threadnum]);
-    std::lock_guard< decltype(ci.mut_ex) > lg(ci.mut_ex);
 
     if (index != ci.index){
       prepare_node(index, ci, threadnum, false);

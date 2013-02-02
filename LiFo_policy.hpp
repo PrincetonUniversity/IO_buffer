@@ -80,7 +80,7 @@ private:
 	return chunk(abstract_policy<T>::chunk_size(),0);
       }else{
 	auto pm(get_mapper(ci.i_mapper));
-	return pm->release_chunk(ci.i_chunk);
+	return pm->release_chunk(ci.i_chunk,true , false);
       }      
     }
   }

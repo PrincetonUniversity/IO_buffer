@@ -66,7 +66,7 @@ void test_parallelization(size_t nthread, size_t Nchunk ){
   std::cout << finalsum << '\n';
   std::cout << "Prepare to remove" << '\n';
 
-  for_buf_removefile_(49);
+  for_buf_removepool_(pool_id);
 }
 
 void test_fortranapi(size_t Nchunk){
@@ -104,7 +104,7 @@ void test_fortranapi(size_t Nchunk){
 
   std::cout << sum << '\n';
 
-  for_buf_removefile_(48);
+  for_buf_removepool_(pool_id);
 }
 
 void test_policy(){

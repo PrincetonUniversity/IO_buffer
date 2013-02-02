@@ -106,6 +106,7 @@ void fortranapi::removefile( const FINT& unit){
   files[unit] = NULL; // remove shared_ptr, 
   // not getfilep(unit).reset(), that would just reset the temporary 
 
+  std::cerr << "Execute " << oss.str() << '\n';
   if (std::system(oss.str().c_str()) == -1)
     std::cerr << "Error on command " << oss.str() << '\n';
 }
@@ -135,11 +136,13 @@ void fortranapi::removepool( const FINT& poolid){
   for (auto p = files.begin(); p!=files.end(); ++p)
     {
       pw_mapper pm(*p); 
-      if (pm->get_policy() == pp){
-	 oss << pm->filename() << ' ';
-      }
+      if (pm)
+	if (pm->get_policy() == pp){
+	  oss << pm->filename() << ' ';
+	}
     }
   pp.reset();
+  std::cerr << "Execute " << oss.str() << '\n';
   if (std::system(oss.str().c_str()) == -1)
     std::cerr << "Error on command " << oss.str() << '\n';
 }
