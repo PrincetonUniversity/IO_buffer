@@ -17,6 +17,12 @@
 extern "C" 
 void for_buf_construct_( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id );
 
+/* change the buffer size to maxmem,
+   this does not force the buffer to immediately shrink (or expand)
+   free memory by, e.g., flushfile */
+extern "C"
+void for_buf_changebuffersize_( const FINT& pool_id, const FINT& maxmem);
+
 /* 
    open file, and connect to logical unit number unit,
    use pool pool_id for buffering, length is not needed in fortran interface 

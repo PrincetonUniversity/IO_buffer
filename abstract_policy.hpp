@@ -81,6 +81,8 @@ public:
 
   virtual ~abstract_policy(){};
 
+  void change_buffer_size(size_t N){ change_buffer_size_(N);};
+
   size_t chunk_size(){ return chunk_size_;}
 
   size_t nthread() const { return nthread_;};
@@ -156,6 +158,8 @@ private:
   std::mutex mutex_mappers;
 
   size_t chunk_size_;
+
+  virtual void change_buffer_size_(size_t) = 0;
 
   virtual void sync_(size_t) = 0;
 

@@ -67,6 +67,9 @@ public:
 		 const FINT& storagepolicy,
 		 const FINT& nthread);
 
+  void changebuffersize(const FINT& pool_id,
+			const FINT& maxmem);
+
   void openfile(const FINT& pool_id,
 		const FINT& unit,
 		std::string filename);

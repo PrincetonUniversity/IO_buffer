@@ -53,6 +53,11 @@ FINT fortranapi::construct(const FINT& maxmem,
   return index;
 }
 
+void fortranapi::changebuffersize(const FINT& pool_id,
+				  const FINT& maxmem){
+  getpolicy(pool_id)->change_buffer_size(maxmem);
+}
+
 void fortranapi::openfile(const FINT& pool_id,
 			  const FINT& unit,
 			  std::string filename){

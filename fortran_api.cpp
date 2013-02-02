@@ -25,6 +25,21 @@ void for_buf_construct_( const FINT& maxmem, const FINT& blocksize, const FINT& 
 
 }
 
+void for_buf_changebuffersize_( const FINT& pool_id,
+				const FINT& maxmem ){
+  
+#ifdef DEBUG_FORBUF
+  std::cout << "Called for_buf_changebuffersize\n";
+
+  std::cout << "maxmem        =" << maxmem << '\n'
+            << "pool_id       =" << pool_id << '\n';
+
+  std::cout.flush();
+#endif
+    
+  fortranapi::get().changebuffersize( pool_id, maxmem);
+}
+
 extern "C" 
 void for_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filename, const int& length){
   
@@ -41,8 +56,6 @@ void for_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filen
   for (int i=0; i < length; ++i) fn += filename[i];
 
 #ifdef DEBUG_FORBUF
-  std::cout << "Called for_buf_openfile\n";
-
   std::cout << "filename =" << fn << '\n';
   std::cout.flush();
 #endif

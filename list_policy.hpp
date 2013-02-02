@@ -68,9 +68,13 @@ private:
 
   size_t in_memory_size_;
 
+  size_t max_in_mem_;
+
   policy_list();
 
-  size_t max_in_mem_;
+  void change_buffer_size_( size_t N ) OVERRIDE {
+    max_in_mem_ = N;
+  }
 
   void sync_() OVERRIDE{
         std::for_each(in_memory.begin(), in_memory.end(), 
