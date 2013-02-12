@@ -204,6 +204,14 @@ private:
     if (querymp){ // index already exists!
       std::cout << "Mapper id " << index 
 		<< " already in use in assign_mapper\n";
+
+      std::cout << "The following mappers are assigned to this policy:\n";
+
+      std::for_each(mappers.begin(), mappers.end(),[]
+		    (decltype(*(mappers.begin())) p){
+		      std::cout << p.second->filename() 
+				<< ' ' << p.first << '\n';});
+
       std::cout.flush();
       throw E_invalid_mapper_id(index);
     }
