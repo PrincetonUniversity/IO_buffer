@@ -15,12 +15,13 @@
 class E_invalid_mapper_id: public std::exception{
 public:
   FINT sp;
-  E_invalid_mapper_id(FINT i):sp(i){};
+  E_invalid_mapper_id(FINT i):sp(i){    
+  };
   
   ~E_invalid_mapper_id() throw() {};
 
   const char* what() const throw(){
-    return "File id unknown!";
+    return "Mapper id unknown!";
   }
 };
 
@@ -134,11 +135,17 @@ public:
 
   p_mapper get_mapper(size_t index){
     auto pit(mappers.find(index));
-    if (pit == mappers.end())
+    if (pit == mappers.end()){
+      std::cout << "Mapper id " << index << " unknown in get_mapper\n";
+      std::cout.flush();
       throw E_invalid_mapper_id(index);
+    }
     p_mapper pm(pit->second);
-    if (!pm)
+    if (!pm){
+      std::cout << "Mapper id " << index << " already closed in get_mapper\n";
+      std::cout.flush();
       throw E_invalid_mapper_id(index);
+    }
     return pm;
   };
 
@@ -194,8 +201,12 @@ private:
   void assign_mapper_(p_mapper pm, size_t index) { 
     std::lock_guard<std::mutex> lock_mapper(mutex_mappers);
     p_mapper querymp(mappers[index]);
-    if (querymp) // index already exists!
+    if (querymp){ // index already exists!
+      std::cout << "Mapper id " << index 
+		<< " already in use in assign_mapper\n";
+      std::cout.flush();
       throw E_invalid_mapper_id(index);
+    }
 
     mappers[index]=pm;
   };  
