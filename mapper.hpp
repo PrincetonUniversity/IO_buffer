@@ -129,9 +129,10 @@ public:
   static p_mapper
     factory(const std::string& fn, 
 	    size_t index,
-	    p_abstract_policy pap){
-    p_mapper pm(new mapper(fn,index,pap));
-    pap->assign_mapper(pm,index);
+	    p_abstract_policy pap,
+	    bool reopen = false){
+    p_mapper pm(new mapper( fn, index, pap, reopen));
+    pap->assign_mapper( pm, index);
     return pm;
   };
   
@@ -192,13 +193,23 @@ private:
 
   mapper(const std::string& bufferfile,
 	 size_t ind,
-	 p_abstract_policy m):
+	 p_abstract_policy m,
+	 bool reopen = false):
     policy(m),
     currentinfo(policy.lock()->nthread()),
     chunk_size(m->chunk_size()),
-    file_data(bufferfile.c_str(), chunk_size),
+    file_data(bufferfile.c_str(), chunk_size, reopen),
     my_mapperid(ind)
   {    
+
+    if (reopen){
+      // if we reopen, we have to mark all nodes as stored
+      nodes.resize(file_data.filesize());      
+      std::for_each(nodes.begin(), 
+		    nodes.end(),
+		    [](node<T>& n){ n.status = node<T>::stored;});
+    }     
+
     nodeusecount.store(0);
     nodeusebarrier.store(false);
     nodereleasecount.store(0);

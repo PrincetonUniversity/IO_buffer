@@ -15,22 +15,22 @@ void do_work( size_t threadnum, size_t nthread, size_t RAMsize ){
   double sum(0.);
   
   for (size_t i = threadnum; i < RAMsize; i += nthread){
-    for_buf_writeelement_(49,i,0.5892*(i%20),threadnum);
+    for_double_buf_writeelement_(49,i,0.5892*(i%20),threadnum);
   }
 
   for (size_t i = threadnum; i < RAMsize; i += nthread){
     double value(i);
-        for_buf_readelement_(49,i,value,threadnum);
+        for_double_buf_readelement_(49,i,value,threadnum);
     sum += value; 
   }
 
   for (size_t i = threadnum; i < RAMsize; i += nthread){
-        for_buf_writeelement_(49,i,0.5892*(i%20),threadnum);
+        for_double_buf_writeelement_(49,i,0.5892*(i%20),threadnum);
   }
 
   for (size_t i = threadnum; i < RAMsize; i += nthread){
     double value(i);
-        for_buf_readelement_(49,i,value,threadnum);
+        for_double_buf_readelement_(49,i,value,threadnum);
     sum -= value; 
   }
 
@@ -46,9 +46,9 @@ void test_parallelization(size_t nthread, size_t Nchunk ){
   const size_t chunksize = 125000; // 1MB chunks
   const size_t RAMsize= Nchunk * chunksize;
 
-  for_buf_construct_(Nchunk,chunksize,0,nthread,pool_id);
+  for_double_buf_construct_(Nchunk,chunksize,0,nthread,pool_id);
 
-  for_buf_openfile_(pool_id, 49, "buf_F2.dat",10);
+  for_double_buf_openfile_(pool_id, 49, "buf_F2.dat",10);
 
   finalsum = 0.;
 
@@ -66,7 +66,7 @@ void test_parallelization(size_t nthread, size_t Nchunk ){
   std::cout << finalsum << '\n';
   std::cout << "Prepare to remove" << '\n';
 
-  for_buf_removepool_(pool_id);
+  for_double_buf_removepool_(pool_id);
 }
 
 void test_fortranapi(size_t Nchunk){
@@ -75,36 +75,36 @@ void test_fortranapi(size_t Nchunk){
   const size_t chunksize = 125000; // 1MB chunks
   const size_t RAMsize= Nchunk * chunksize;
 
-  for_buf_construct_(Nchunk,chunksize,0,1,pool_id);
+  for_double_buf_construct_(Nchunk,chunksize,0,1,pool_id);
 
-  for_buf_openfile_(pool_id, 48, "buf_F1.dat",10);
+  for_double_buf_openfile_(pool_id, 48, "buf_F1.dat",10);
 
   double sum(0);
   double value;
 
   for (size_t i = 0; i < RAMsize; ++i){
-    for_buf_writeelement_(48,i,0.5892*(i%20),1);
+    for_double_buf_writeelement_(48,i,0.5892*(i%20),1);
   }
   for (size_t i = 0; i < RAMsize; ++i){
-    for_buf_readelement_(48,i,value,1);
+    for_double_buf_readelement_(48,i,value,1);
     sum += value; 
   }
   for (size_t i = 0; i < RAMsize; ++i){
-    for_buf_writeelement_(48,i,0.5892*(i%20),1);
+    for_double_buf_writeelement_(48,i,0.5892*(i%20),1);
   }
   for (size_t i = 0; i < RAMsize; ++i){
-    for_buf_readelement_(48,i,value,1);
+    for_double_buf_readelement_(48,i,value,1);
     sum -= value; 
   }
 
-  for_buf_readelement_(48,2583,value,1);
+  for_double_buf_readelement_(48,2583,value,1);
 
   if (value != 0.5892*(2583%20))
     std::cerr << "ERROR: Elemenct 2583 is wrong!\n";
 
   std::cout << sum << '\n';
 
-  for_buf_removepool_(pool_id);
+  for_double_buf_removepool_(pool_id);
 }
 
 void test_policy(){

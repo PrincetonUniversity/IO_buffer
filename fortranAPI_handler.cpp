@@ -5,7 +5,8 @@
 
 #include <mutex>
 
-p_abstract_policy fortranapi::getpolicy( FINT pool_id ){
+template <class T> 
+typename fortranapi<T>::p_abstract_policy fortranapi<T>::getpolicy( FINT pool_id ){
 
   if (static_cast<size_t>(pool_id) >= pools.size())
     throw E_invalid_pool_id(pool_id);
@@ -19,7 +20,8 @@ p_abstract_policy fortranapi::getpolicy( FINT pool_id ){
 }
 
 #ifndef FORBUF_FAST
-pw_mapper fortranapi::getfilep( int index){
+template <class T> 
+pw_mapper fortranapi<T>::getfilep( int index){
   pw_mapper p(files[index]);
   if (!p) {
 
@@ -38,22 +40,23 @@ pw_mapper fortranapi::getfilep( int index){
 }
 #endif
 
-FINT fortranapi::construct(const FINT& maxmem,
-			   const FINT& blocksize,
-			   const FINT& storagepolicy,
-			   const FINT& nthread){
+template <class T> 
+FINT fortranapi<T>::construct(const FINT& maxmem,
+			      const FINT& blocksize,
+			      const FINT& storagepolicy,
+			      const FINT& nthread){
   FINT index=pools.size();
 
   p_abstract_policy psp;
 
   switch (storagepolicy){
   case 0: // LiFo
-    pools.push_back(p_abstract_policy(new policy_LiFo<double>(maxmem,
+    pools.push_back(p_abstract_policy(new policy_LiFo<T>(maxmem,
 							      blocksize,
 							      nthread)));
     break;
   case 1: // LiLo
-    pools.push_back(p_abstract_policy(new policy_LiLo<double>(maxmem,
+    pools.push_back(p_abstract_policy(new policy_LiLo<T>(maxmem,
 							      blocksize, 
 							      nthread)));
     break;
@@ -64,56 +67,69 @@ FINT fortranapi::construct(const FINT& maxmem,
   return index;
 }
 
-void fortranapi::changebuffersize(const FINT& pool_id,
+template <class T> 
+void fortranapi<T>::changebuffersize(const FINT& pool_id,
 				  const FINT& maxmem){
   getpolicy(pool_id)->change_buffer_size(maxmem);
 }
 
-void fortranapi::openfile(const FINT& pool_id,
-			  const FINT& unit,
-			  std::string filename){
+template <class T> 
+void fortranapi<T>::openfile(const FINT& pool_id,
+			     const FINT& unit,
+			     std::string filename,
+			     bool reopen){
   if (static_cast<size_t>(unit) > files.size()){
     files.resize(unit+1);
   } 
-  files[unit] = mapper<double>::factory(filename, unit, getpolicy(pool_id)).get();
+  files[unit] = mapper<T>::factory(filename, 
+					unit, 
+					getpolicy(pool_id),
+					reopen
+					).get();
 }
 
-void fortranapi::writeArray( const FINT& unit,
-			     const FINT& pos,
-			     const FINT& N,
-			     const double* values,
-			     const FINT& threadnum){
+template <class T> 
+void fortranapi<T>::writeArray( const FINT& unit,
+				const FINT& pos,
+				const FINT& N,
+				const T* values,
+				const FINT& threadnum){
   getfilep(unit)->set(pos, N, values, threadnum);
 }
 
-void fortranapi::writeBlock( const FINT& unit,
-			     const FINT& blockid,
-			     const double* values,
-			     const FINT& threadnum){
+template <class T> 
+void fortranapi<T>::writeBlock( const FINT& unit,
+				const FINT& blockid,
+				const T* values,
+				const FINT& threadnum){
   getfilep(unit)->setchunk(blockid, values, threadnum);
 }
 
-void fortranapi::readArray( const FINT& unit,
+template <class T> 
+void fortranapi<T>::readArray( const FINT& unit,
 			    const FINT& pos,
 			    const FINT& N,
-			    double* values,
+			    T* values,
 			    const FINT& threadnum){
   getfilep(unit)->get(pos, N, values, threadnum);
 }
 
-void fortranapi::readBlock( const FINT& unit,
+template <class T> 
+void fortranapi<T>::readBlock( const FINT& unit,
 			    const FINT& blockid,
-			    double* values,
+			    T* values,
 			    const FINT& threadnum){
   getfilep(unit)->getchunk(blockid, values, threadnum);
 }
 
-void fortranapi::closefile( const FINT& unit){
+template <class T> 
+void fortranapi<T>::closefile( const FINT& unit){
   getfilep(unit)->get_policy()->remove_mapper(unit);
   files[unit] = NULL;
 }
 
-void fortranapi::removefile( const FINT& unit){
+template <class T> 
+void fortranapi<T>::removefile( const FINT& unit){
 
   std::ostringstream oss;
   oss << "rm " << getfilep(unit)->filename() << '\n';
@@ -127,23 +143,28 @@ void fortranapi::removefile( const FINT& unit){
     std::cerr << "Error on command " << oss.str() << '\n';
 }
 
-void fortranapi::flushfile( const FINT& unit){
+template <class T> 
+void fortranapi<T>::flushfile( const FINT& unit){
   getfilep(unit)->flush();
 }
 
-void fortranapi::syncfile( const FINT& unit){
+template <class T> 
+void fortranapi<T>::syncfile( const FINT& unit){
   getfilep(unit)->get_policy()->sync(unit);
 }
 
-void fortranapi::syncpool( const FINT& poolid){
+template <class T> 
+void fortranapi<T>::syncpool( const FINT& poolid){
   getpolicy(poolid)->sync();
 }
 
-void fortranapi::closepool( const FINT& poolid){
+template <class T> 
+void fortranapi<T>::closepool( const FINT& poolid){
   getpolicy(poolid).reset();
 }
 
-void fortranapi::removepool( const FINT& poolid){
+template <class T> 
+void fortranapi<T>::removepool( const FINT& poolid){
   auto pp(getpolicy(poolid));
   pp->forget_all_mem();
   std::ostringstream oss;
@@ -163,6 +184,10 @@ void fortranapi::removepool( const FINT& poolid){
     std::cerr << "Error on command " << oss.str() << '\n';
 }
 
-void fortranapi::flushpool( const FINT& poolid){
+template <class T>
+void fortranapi<T>::flushpool( const FINT& poolid){
   pools[poolid]->return_all_mem();
 }
+
+template class fortranapi<double>;
+template class fortranapi<FINT>;

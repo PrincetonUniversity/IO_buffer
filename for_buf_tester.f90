@@ -1,4 +1,4 @@
-program for_buf_tester
+program for_double_buf_tester
 
 use omp_lib
 
@@ -12,7 +12,7 @@ integer::dim1,dim2
 integer::blockSize
 integer::numBlocks
 integer::i,j,c,iostat
-integer::for_buf_poolID
+integer::for_double_buf_poolID
 real(kind=8)::tmp
 integer(kind=4),parameter::seed=86456
 integer(kind=4),parameter::unitInp=200
@@ -50,13 +50,13 @@ do j=1,dim2
    enddo
 enddo
 
-! initialize our for_buf
-call for_buf_construct(numBlocks,blockSize,0,max(numThreadsRead,numThreadsWrite),for_buf_poolID)
+! initialize our for_double_buf
+call for_double_buf_construct(numBlocks,blockSize,0,max(numThreadsRead,numThreadsWrite),for_double_buf_poolID)
 write(*,*) "Constructed buffer with following settings:"
-write(*,*) "Pool ID ",for_buf_poolID
+write(*,*) "Pool ID ",for_double_buf_poolID
 write(*,*) "Maximum concurrency ",max(numThreadsRead,numThreadsWrite)
 flush(6)
-call for_buf_openfile(for_buf_poolID, unitFile, 'forbuf.dat',10)
+call for_double_buf_openfile(for_double_buf_poolID, unitFile, 'forbuf.dat',10)
 
 ! write them out
 call omp_set_num_threads(numThreadsWrite)
@@ -71,7 +71,7 @@ do j=1,dim2
    threadID = OMP_get_thread_num()+1
    do i=1,dim1
       ! i am aware that this is really stupid. but so is tiger.
-      call for_buf_writeElement(unitFile,c,testmat(i,j),threadID)
+      call for_double_buf_writeElement(unitFile,c,testmat(i,j),threadID)
       c = c + 1
    enddo
 enddo
@@ -79,7 +79,7 @@ enddo
 !$omp end parallel
 
 ! synchronize stuff to disk for posteriori analysis
-call for_buf_flushpool(for_buf_poolID)
+call for_double_buf_flushpool(for_double_buf_poolID)
 
 write(*,*) "Writing sweep complete. Reading back in..."
 flush(6)
@@ -97,7 +97,7 @@ do j=1,dim2
    threadID = OMP_get_thread_num()+1
    do i=1,dim1
       ! i am aware that this is really stupid. but so is tiger.
-      call for_buf_readElement(unitFile,c,tmp,threadID)
+      call for_double_buf_readElement(unitFile,c,tmp,threadID)
       if(tmp .ne. testmat(i,j)) then
          write(*,*) "ERROR: Mismatch a/b in i/j with threadID ",tmp,testmat(i,j),i,j,threadID
          flush(6)
@@ -110,9 +110,9 @@ enddo
 !$omp end parallel
 
 ! close the for buf
-call for_buf_removepool(for_buf_poolID)
+call for_double_buf_removepool(for_double_buf_poolID)
 
-!call for_buf_removefile(unitFile)
+!call for_double_buf_removefile(unitFile)
 
 deallocate(testmat,stat=iostat)
 if(iostat .ne. 0) then
@@ -124,4 +124,4 @@ endif
 write(*,*) "Test successfully completed! :-)"
 flush(6)
 
-end program for_buf_tester
+end program for_double_buf_tester

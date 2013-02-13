@@ -51,14 +51,15 @@ class filestruct;
 
 template <class T>
 class abstract_policy;
-typedef std::shared_ptr<abstract_policy<double> > p_abstract_policy;
 
 template <class T>
 class mapper;
-typedef std::shared_ptr<mapper<double> > p_mapper;
-typedef mapper<double>* pw_mapper;
 
-class fortranapi: public Singleton<fortranapi>{
+template <class T>
+class fortranapi: public Singleton<fortranapi<T> >{
+
+typedef std::shared_ptr<abstract_policy<T> > p_abstract_policy;
+typedef mapper<T>* pw_mapper;
 
 public:
 
@@ -72,40 +73,41 @@ public:
 
   void openfile(const FINT& pool_id,
 		const FINT& unit,
-		std::string filename);
+		std::string filename,
+		bool reopen = false);
 
   void writeElement( const FINT& unit,
 		     const FINT& pos,
-		     const double& value,
+		     const T& value,
 		     const FINT& threadnum){
     getfilep(unit)->set(pos, value, threadnum);
   };
 
   void writeBlock( const FINT& unit,
 		   const FINT& blockid,
-		   const double* values,
+		   const T* values,
 		   const FINT& threadnum);
 
   void writeArray( const FINT& unit,
 		   const FINT& pos,
 		   const FINT& N,
-		   const double* values,
+		   const T* values,
 		   const FINT& threadnum);
 
-  double readElement( const FINT& unit,
+  T readElement( const FINT& unit,
 		      const FINT& pos,
 		      const FINT& threadnum){
     return getfilep(unit)->get(pos, threadnum);}
 
   void readBlock( const FINT& unit,
 		  const FINT& blockid,
-		  double* values,
+		  T* values,
 		  const FINT& threadnum);
 
   void readArray( const FINT& unit,
 		  const FINT& pos,
 		  const FINT& N,
-		  double* values,
+		  T* values,
 		  const FINT& threadnum);
 
   void closefile( const FINT& unit);
