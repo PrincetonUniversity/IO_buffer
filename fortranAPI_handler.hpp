@@ -128,6 +128,8 @@ public:
 
 private:
 
+  std::string my_name() const;
+
   std::vector< pw_mapper > files;
 
   std::vector< p_abstract_policy > pools;

@@ -5,6 +5,16 @@
 
 #include <mutex>
 
+template <>
+std::string fortranapi<FINT>::my_name() const {
+  return "FINT";
+}
+
+template <>
+std::string fortranapi<double>::my_name() const {
+  return "double";
+}
+
 template <class T> 
 typename fortranapi<T>::p_abstract_policy fortranapi<T>::getpolicy( FINT pool_id ){
 
@@ -27,11 +37,32 @@ typename fortranapi<T>::pw_mapper fortranapi<T>::getfilep( int index){
 
     std::cerr << "Error: Unknown file id " << index << '\n';
 
+    std::cerr << "I am a " << my_name << " buffer\n";
+
+    std::cerr << "The FINT buffer knows the file ids:\n";
+
+    fortranapi<FINT>& fpi( fortranapi<FINT>::get() );
+
+    for (size_t i = 0; i < fpi.size(); ++i)
+      if (pw_mapper p = fpi.files[i])
+	std::cerr << i << ' ' << p->filename() << '\n';
+
+    std::cerr << "The double buffer knows the file ids:\n";
+
+    fortranapi<double>& fpd( fortranapi<double>::get() );
+
+    for (size_t i = 0; i < fpd.files.size(); ++i)
+      if (pw_mapper p = fpd.files[i])
+	std::cerr << i << ' ' << p->filename() << '\n';
+
+
     std::cerr << "I know the file ids:\n";
 
     for (size_t i = 0; i < files.size(); ++i)
       if (pw_mapper p = files[i])
 	std::cerr << i << ' ' << p->filename() << '\n';
+
+
 
     throw E_unknown_file_id(index);
 
@@ -125,6 +156,8 @@ void fortranapi<T>::readBlock( const FINT& unit,
 template <class T> 
 void fortranapi<T>::closefile( const FINT& unit){
   getfilep(unit)->get_policy()->remove_mapper(unit);
+  std::cerr << "REMOVING FILE " << unit << "\n";
+  std::cerr.flush();
   files[unit] = NULL;
 }
 
@@ -135,6 +168,8 @@ void fortranapi<T>::removefile( const FINT& unit){
   oss << "rm " << getfilep(unit)->filename() << '\n';
 
   getfilep(unit)->get_policy()->remove_mapper(unit, false);
+  std::cerr << "REMOVING FILE " << unit << "\n";
+  std::cerr.flush();
   files[unit] = NULL; // remove shared_ptr, 
   // not getfilep(unit).reset(), that would just reset the temporary 
 
@@ -160,7 +195,17 @@ void fortranapi<T>::syncpool( const FINT& poolid){
 
 template <class T> 
 void fortranapi<T>::closepool( const FINT& poolid){
-  getpolicy(poolid).reset();
+  auto pp(getpolicy(poolid));
+  for (auto p = files.begin(); p!=files.end(); ++p)
+    {
+      pw_mapper pm(*p); 
+      if (pm){
+	if (pm->get_policy() == pp){
+	  *p= NULL;
+	}	
+      }
+    }
+  pools[poolid].reset();
 }
 
 template <class T> 
@@ -173,12 +218,14 @@ void fortranapi<T>::removepool( const FINT& poolid){
   for (auto p = files.begin(); p!=files.end(); ++p)
     {
       pw_mapper pm(*p); 
-      if (pm)
+      if (pm){
 	if (pm->get_policy() == pp){
 	  oss << pm->filename() << ' ';
-	}
+	  *p= NULL;
+	}	
+      }
     }
-  pp.reset();
+  pools[poolid].reset();
   std::cerr << "Execute " << oss.str() << '\n';
   if (std::system(oss.str().c_str()) == -1)
     std::cerr << "Error on command " << oss.str() << '\n';
