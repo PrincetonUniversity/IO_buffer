@@ -126,6 +126,8 @@ public:
 
   void flushpool( const FINT& poolid);
 
+  void output_all_known();
+
 private:
 
   std::string my_name() const;

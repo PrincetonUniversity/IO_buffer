@@ -29,6 +29,15 @@ typename fortranapi<T>::p_abstract_policy fortranapi<T>::getpolicy( FINT pool_id
   return pp;
 }
 
+template <class T>
+void fortranapi<T>::output_all_known(){
+    for (size_t i = 0; i < files.size(); ++i)
+      if (pw_mapper p = files[i])
+	std::cerr << i << ' ' << p->filename() << '\n';
+}
+
+
+
 #ifndef FORBUF_FAST
 template <class T> 
 typename fortranapi<T>::pw_mapper fortranapi<T>::getfilep( int index){
@@ -37,32 +46,13 @@ typename fortranapi<T>::pw_mapper fortranapi<T>::getfilep( int index){
 
     std::cerr << "Error: Unknown file id " << index << '\n';
 
-    std::cerr << "I am a " << my_name << " buffer\n";
+    std::cerr << "I am a " << my_name() << " buffer\n";
 
     std::cerr << "The FINT buffer knows the file ids:\n";
-
-    fortranapi<FINT>& fpi( fortranapi<FINT>::get() );
-
-    for (size_t i = 0; i < fpi.size(); ++i)
-      if (pw_mapper p = fpi.files[i])
-	std::cerr << i << ' ' << p->filename() << '\n';
+    fortranapi<FINT>::get().output_all_known();
 
     std::cerr << "The double buffer knows the file ids:\n";
-
-    fortranapi<double>& fpd( fortranapi<double>::get() );
-
-    for (size_t i = 0; i < fpd.files.size(); ++i)
-      if (pw_mapper p = fpd.files[i])
-	std::cerr << i << ' ' << p->filename() << '\n';
-
-
-    std::cerr << "I know the file ids:\n";
-
-    for (size_t i = 0; i < files.size(); ++i)
-      if (pw_mapper p = files[i])
-	std::cerr << i << ' ' << p->filename() << '\n';
-
-
+    fortranapi<double>::get().output_all_known();
 
     throw E_unknown_file_id(index);
 
