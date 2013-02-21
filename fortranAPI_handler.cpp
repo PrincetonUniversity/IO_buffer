@@ -102,14 +102,16 @@ void fortranapi<T>::openfile(const FINT& pool_id,
 			     const FINT& unit,
 			     std::string filename,
 			     bool reopen){
-  if (static_cast<size_t>(unit) > files.size()){
+  if (static_cast<size_t>(unit) >= files.size()){
     files.resize(unit+1);
   } 
   files[unit] = mapper<T>::factory(filename, 
-					unit, 
-					getpolicy(pool_id),
-					reopen
-					).get();
+				   unit, 
+				   getpolicy(pool_id),
+				   reopen
+				   ).get();
+  std::cerr << "now: ";
+  outputfiles();
 }
 
 template <class T> 
