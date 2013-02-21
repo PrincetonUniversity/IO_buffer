@@ -18,6 +18,8 @@ integer(kind=4),parameter::seed=86456
 integer(kind=4),parameter::unitInp=200
 integer(kind=4),parameter::unitFile=220
 
+integer(kind=4) poolintid
+
 ! setup the calculation
 open(unit=unitInp,status="old",action="read",file="forbuf.inp")
 read(unitInp,*) numThreadsWrite
@@ -78,6 +80,9 @@ enddo
 !$omp end do nowait
 !$omp end parallel
 
+
+call for_int_buf_construct(100, 50,0, 1, poolintid);
+
 ! synchronize stuff to disk for posteriori analysis
 call for_double_buf_flushpool(for_double_buf_poolID)
 
@@ -108,6 +113,13 @@ do j=1,dim2
 enddo
 !$omp end do nowait
 !$omp end parallel
+
+call for_int_buf_openfile(poolintid, 93,"intbuf",6)
+call for_int_buf_writeelement(93,52,133,1)
+call for_int_buf_writeelement(93,53,133,1)
+call for_int_buf_writeelement(93,54,133,1)
+call for_int_buf_writeelement(93,55,133,1)
+call for_int_buf_writeelement(93,56,133,1)
 
 ! close the for buf
 call for_double_buf_removepool(for_double_buf_poolID)

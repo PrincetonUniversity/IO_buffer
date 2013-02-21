@@ -21,7 +21,7 @@ typename fortranapi<T>::p_abstract_policy fortranapi<T>::getpolicy( FINT pool_id
 
 #ifndef FORBUF_FAST
 template <class T> 
-pw_mapper fortranapi<T>::getfilep( int index){
+typename fortranapi<T>::pw_mapper fortranapi<T>::getfilep( int index){
   pw_mapper p(files[index]);
   if (!p) {
 
@@ -31,7 +31,7 @@ pw_mapper fortranapi<T>::getfilep( int index){
 
     for (size_t i = 0; i < files.size(); ++i)
       if (pw_mapper p = files[i])
-	std::cerr << i << '  ' << p->filename() << '\n';
+	std::cerr << i << ' ' << p->filename() << '\n';
 
     throw E_unknown_file_id(index);
 

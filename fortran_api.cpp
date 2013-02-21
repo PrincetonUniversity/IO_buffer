@@ -146,6 +146,11 @@ void for_double_buf_readelement_( const FINT& unit, const FINT& pos, double& val
 #endif
 
   value = fortranapi<double>::get().readElement(unit, pos, threadnum-1);
+
+#ifdef DEBUG_FORBUF
+  std::cout << "Done with for_double_buf_readElement\n";
+  std::cout.flush();
+#endif
 }
 
 extern "C"

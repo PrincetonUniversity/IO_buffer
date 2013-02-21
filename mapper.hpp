@@ -499,6 +499,11 @@ else{
     size_t index=pos / chunk_size;
     size_t offset=pos%chunk_size;
  
+#ifdef DEBUG_FORBUF
+    std::cout << "Inside get_element\n";
+    std::cout.flush();
+#endif
+
 #ifdef COLLECT_STATISTICS
     ++stat.n_read_buff;
 #endif
@@ -506,12 +511,21 @@ else{
     tcurrentinfo& ci(currentinfo[threadnum]);
 
     if (index != ci.index){
+#ifdef DEBUG_FORBUF
+      std::cout << "Need prepare_node in get_element\n";
+      std::cout.flush();
+#endif
       prepare_node(index, ci, threadnum, false);
     }
 #ifdef COLLECT_STATISTICS
     else{
       ++stat.n_fastread;
     }
+#endif
+
+#ifdef DEBUG_FORBUF
+    std::cout << "Obtained pointer in get_element\n";
+    std::cout.flush();
 #endif
 
     return *(ci.cchunk + offset);
