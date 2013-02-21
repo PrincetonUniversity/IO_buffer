@@ -31,12 +31,19 @@ typename fortranapi<T>::p_abstract_policy fortranapi<T>::getpolicy( FINT pool_id
 
 template <class T>
 void fortranapi<T>::output_all_known(){
-    for (size_t i = 0; i < files.size(); ++i)
-      if (pw_mapper p = files[i])
-	std::cerr << i << ' ' << p->filename() << '\n';
+  for (size_t i = 0; i < files.size(); ++i)
+	 if (pw_mapper p = files[i])
+	   std::cerr << i << ' ' << p->filename() << '\n';
+       } 
 }
 
+void outputfiles(){
+    std::cerr << "The FINT buffer knows the file ids:\n";
+    fortranapi<FINT>::get().output_all_known();
 
+    std::cerr << "The double buffer knows the file ids:\n";
+    fortranapi<double>::get().output_all_known();
+}
 
 #ifndef FORBUF_FAST
 template <class T> 
@@ -48,11 +55,7 @@ typename fortranapi<T>::pw_mapper fortranapi<T>::getfilep( int index){
 
     std::cerr << "I am a " << my_name() << " buffer\n";
 
-    std::cerr << "The FINT buffer knows the file ids:\n";
-    fortranapi<FINT>::get().output_all_known();
-
-    std::cerr << "The double buffer knows the file ids:\n";
-    fortranapi<double>::get().output_all_known();
+    outputfiles();
 
     throw E_unknown_file_id(index);
 
@@ -73,13 +76,13 @@ FINT fortranapi<T>::construct(const FINT& maxmem,
   switch (storagepolicy){
   case 0: // LiFo
     pools.push_back(p_abstract_policy(new policy_LiFo<T>(maxmem,
-							      blocksize,
-							      nthread)));
+							 blocksize,
+							 nthread)));
     break;
   case 1: // LiLo
     pools.push_back(p_abstract_policy(new policy_LiLo<T>(maxmem,
-							      blocksize, 
-							      nthread)));
+							 blocksize, 
+							 nthread)));
     break;
   default:
     throw E_unknown_storagepolicy(storagepolicy);
@@ -141,6 +144,8 @@ void fortranapi<T>::readBlock( const FINT& unit,
 			    T* values,
 			    const FINT& threadnum){
   getfilep(unit)->getchunk(blockid, values, threadnum);
+
+  outputfiles();
 }
 
 template <class T> 
@@ -176,11 +181,15 @@ void fortranapi<T>::flushfile( const FINT& unit){
 template <class T> 
 void fortranapi<T>::syncfile( const FINT& unit){
   getfilep(unit)->get_policy()->sync(unit);
+
+  outputfiles();
 }
 
 template <class T> 
 void fortranapi<T>::syncpool( const FINT& poolid){
   getpolicy(poolid)->sync();
+
+  outputfiles();  
 }
 
 template <class T> 
