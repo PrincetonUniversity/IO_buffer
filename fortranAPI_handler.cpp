@@ -31,10 +31,10 @@ typename fortranapi<T>::p_abstract_policy fortranapi<T>::getpolicy( FINT pool_id
 
 template <class T>
 void fortranapi<T>::output_all_known(){
-  for (size_t i = 0; i < files.size(); ++i)
-	 if (pw_mapper p = files[i])
-	   std::cerr << i << ' ' << p->filename() << '\n';
-       } 
+  for (size_t i = 0; i < files.size(); ++i){
+      if (pw_mapper p = files[i])
+	std::cerr << i << ' ' << p->filename() << '\n';
+    } 
 }
 
 void outputfiles(){
