@@ -51,7 +51,7 @@ typename fortranapi<T>::pw_mapper fortranapi<T>::getfilep( int index){
   pw_mapper p(files[index]);
   if (!p) {
 
-    std::cerr << "Error: Unknown file id " << index << '\n';
+    std::cout << "Error: Unknown file id " << index << '\n';
 
     std::cerr << "I am a " << my_name() << " buffer\n";
 
@@ -110,8 +110,10 @@ void fortranapi<T>::openfile(const FINT& pool_id,
 				   getpolicy(pool_id),
 				   reopen
 				   ).get();
+#ifdef DEBUG_FORBUF 
   std::cerr << "now: ";
   outputfiles();
+#endif
 }
 
 template <class T> 
@@ -147,14 +149,18 @@ void fortranapi<T>::readBlock( const FINT& unit,
 			    const FINT& threadnum){
   getfilep(unit)->getchunk(blockid, values, threadnum);
 
+#ifdef DEBUG_FORBUF
   outputfiles();
+#endif
 }
 
 template <class T> 
 void fortranapi<T>::closefile( const FINT& unit){
   getfilep(unit)->get_policy()->remove_mapper(unit);
+#ifdef DEBUG_FORBUF
   std::cerr << "REMOVING FILE " << unit << "\n";
   std::cerr.flush();
+#endif
   files[unit] = NULL;
 }
 
@@ -170,9 +176,9 @@ void fortranapi<T>::removefile( const FINT& unit){
   files[unit] = NULL; // remove shared_ptr, 
   // not getfilep(unit).reset(), that would just reset the temporary 
 
-  std::cerr << "Execute " << oss.str() << '\n';
+  std::cout << "Execute " << oss.str() << '\n';
   if (std::system(oss.str().c_str()) == -1)
-    std::cerr << "Error on command " << oss.str() << '\n';
+    std::cout << "Error on command " << oss.str() << '\n';
 }
 
 template <class T> 
@@ -184,14 +190,18 @@ template <class T>
 void fortranapi<T>::syncfile( const FINT& unit){
   getfilep(unit)->get_policy()->sync(unit);
 
+#ifdef DEBUG_FORBUF
   outputfiles();
+#endif
 }
 
 template <class T> 
 void fortranapi<T>::syncpool( const FINT& poolid){
   getpolicy(poolid)->sync();
 
-  outputfiles();  
+#ifdef DEBUG_FORBUF
+  outputfiles();
+#endif
 }
 
 template <class T> 
@@ -227,9 +237,11 @@ void fortranapi<T>::removepool( const FINT& poolid){
       }
     }
   pools[poolid].reset();
-  std::cerr << "Execute " << oss.str() << '\n';
+#ifdef DEBUG_FORBUF
+  std::cout << "Execute " << oss.str() << '\n';
+#endif
   if (std::system(oss.str().c_str()) == -1)
-    std::cerr << "Error on command " << oss.str() << '\n';
+    std::cout << "Error on command " << oss.str() << '\n';
 }
 
 template <class T>
