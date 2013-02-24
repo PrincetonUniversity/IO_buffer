@@ -51,6 +51,14 @@ void for_double_buf_writeblock_( const FINT& unit, const FINT& block, const doub
 extern "C"
 void for_double_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& N, const double* values, const FINT& threadnum);
 
+/* atomically add a value at pos to a unit */
+extern "C"
+void for_double_buf_atomic_add_( const FINT& unit, const FINT& pos, const double& value, const FINT& threadnum);
+
+/* atomically add a number of values starting at pos to a unit */
+extern "C"
+void for_double_buf_atomic_add_array_( const FINT& unit, const FINT& pos, const FINT& N, const double* values, const FINT& threadnum);
+
 /* read one element from the file unit at position pos */
 extern "C"
 void for_double_buf_readelement_( const FINT& unit, const FINT& pos, double& value, const FINT& threadnum);
@@ -137,6 +145,14 @@ void for_int_buf_writeblock_( const FINT& unit, const FINT& block, const FINT* v
 /* write N elements to the file unit starting at position pos */
 extern "C"
 void for_int_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& N, const FINT* values, const FINT& threadnum);
+
+/* atomically add to one element to the file unit at position pos */
+extern "C"
+void for_int_buf_atomic_add_( const FINT& unit, const FINT& pos, const FINT& value, const FINT& threadnum);
+
+/* atomically add to N elements of the file unit starting at position pos */
+extern "C"
+void for_int_buf_atomic_add_array_( const FINT& unit, const FINT& pos, const FINT& N, const FINT* values, const FINT& threadnum);
 
 /* read one element from the file unit at position pos */
 extern "C"

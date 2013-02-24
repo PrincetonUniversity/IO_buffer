@@ -93,6 +93,15 @@ public:
 		const T* t, 
 		size_t threadnum) { setchunk_(N, t, threadnum);};
 
+  void atomic_add(size_t pos, 
+		  const T& t, 
+		  size_t threadnum) { set_(pos, t, threadnum);};
+  void atomic_add(size_t pos, 
+		  size_t N, 
+		  const T* t, 
+		  size_t threadnum) { set_(pos, N, t, threadnum);};
+
+
   T get(size_t pos, size_t threadnum) { return get_(pos, threadnum);};  
   void get(size_t pos, 
 	   size_t N, 
@@ -441,7 +450,7 @@ else{
     }
 #endif
 
-    // node is now correct, do atomic write
+    // node is now correct, do write
     *(ci.cchunk + offset) = t;
 
   };
@@ -529,6 +538,69 @@ else{
 #endif
 
     return *(ci.cchunk + offset);
+  };
+
+  // atomic add at pos to t
+  void atomic_add_(size_t pos, const T& t, size_t threadnum){
+    size_t index=pos / chunk_size;
+    size_t offset=pos%chunk_size;
+
+#ifdef COLLECT_STATISTICS
+    ++stat.n_write_buff;
+#endif
+
+    tcurrentinfo& ci(currentinfo[threadnum]);
+
+    // if node is not correct, set mutex free again, ask for correct one
+    if (index != ci.writeindex){
+      prepare_node( index, ci, threadnum, true);
+    }
+#ifdef COLLECT_STATISTICS
+else{
+      ++stat.n_fastwrite;
+    }
+#endif
+
+    std::lock_guard<std::mutex> lg(nodes[index].mut_ex);
+    *(ci.cchunk + offset) =+ t;    
+
+  };
+
+  // atomic vector add at pos to t
+  void atomic_add_(size_t pos, size_t N, const T* t, size_t threadnum){
+    size_t index=pos / chunk_size;
+    size_t offset=pos%chunk_size;
+
+    tcurrentinfo& ci(currentinfo[threadnum]);
+
+    if (index != ci.writeindex){
+      prepare_node( index, ci, threadnum, true);
+    }
+
+    const T* p_source(t);
+    auto p_target(ci.cchunk + offset);
+
+    nodes[index].mut_ex.lock();
+
+    for (size_t i =0; i < N; ++i){
+      // check whether we are at end of block
+      if (offset == chunk_size){	
+	offset = 0;
+	// release previous lock
+	nodes[index].mut_ex.unlock();
+	prepare_node(++index, ci, threadnum, true);
+	// lock next node
+	nodes[index].mut_ex.lock();
+	p_target = ci.cchunk;
+      }
+      *(p_target++) = *(p_source++);
+    }
+
+    nodes[index].mut_ex.unlock();
+
+#ifdef COLLECT_STATISTICS
+    stat.n_write_buff += N;
+#endif
   };
 
   void get_(size_t pos, size_t N, T* t, size_t threadnum){

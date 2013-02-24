@@ -134,6 +134,39 @@ void for_double_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& 
 }
 
 extern "C"
+void for_double_buf_atomic_add_( const FINT& unit, const FINT& pos, const double& value, const FINT& threadnum){
+
+#ifdef DEBUG_FORBUF
+  std::cout << "Called for_double_buf_atomic_add\n";
+
+  std::cout << "unit     =" << unit << '\n'
+	    << "pos      =" << pos << '\n'
+	    << "value    =" << value << '\n'
+            << "threadnum=" << threadnum << '\n';
+  std::cout.flush();
+#endif
+
+  fortranapi<double>::get().atomicaddElement(unit, pos, value, threadnum-1);
+}
+
+extern "C"
+void for_double_buf_atomic_add_array_( const FINT& unit, const FINT& pos, const FINT& N, const double* values, const FINT& threadnum){
+
+#ifdef DEBUG_FORBUF
+  std::cout << "Called for_double_buf_atomic_add_array\n";
+
+  std::cout << "unit     =" << unit << '\n'
+	    << "pos      =" << pos << '\n'
+	    << "N        =" << N << '\n'
+	    << "value[0] =" << values[0] << '\n'
+            << "threadnum=" << threadnum << '\n';
+  std::cout.flush();
+#endif
+
+  fortranapi<double>::get().atomicaddArray(unit, pos, N, values, threadnum-1);
+}
+
+extern "C"
 void for_double_buf_readelement_( const FINT& unit, const FINT& pos, double& value, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
@@ -423,6 +456,39 @@ void for_int_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& N, 
 #endif
 
   fortranapi<FINT>::get().writeArray(unit, pos, N, values, threadnum-1);
+}
+
+extern "C"
+void for_int_buf_atomic_add_( const FINT& unit, const FINT& pos, const FINT& value, const FINT& threadnum){
+
+#ifdef DEBUG_FORBUF
+  std::cout << "Called for_int_buf_atomic_add\n";
+
+  std::cout << "unit     =" << unit << '\n'
+	    << "pos      =" << pos << '\n'
+	    << "value    =" << value << '\n'
+            << "threadnum=" << threadnum << '\n';
+  std::cout.flush();
+#endif
+
+  fortranapi<FINT>::get().atomicaddElement(unit, pos, value, threadnum-1);
+}
+
+extern "C"
+void for_int_buf_atomic_add_array_( const FINT& unit, const FINT& pos, const FINT& N, const FINT* values, const FINT& threadnum){
+
+#ifdef DEBUG_FORBUF
+  std::cout << "Called for_int_buf_atomic_add_array\n";
+
+  std::cout << "unit     =" << unit << '\n'
+	    << "pos      =" << pos << '\n'
+	    << "N        =" << N << '\n'
+	    << "value[0] =" << values[0] << '\n'
+            << "threadnum=" << threadnum << '\n';
+  std::cout.flush();
+#endif
+
+  fortranapi<FINT>::get().atomicaddArray(unit, pos, N, values, threadnum-1);
 }
 
 extern "C"

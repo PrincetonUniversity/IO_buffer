@@ -117,44 +117,6 @@ void fortranapi<T>::openfile(const FINT& pool_id,
 }
 
 template <class T> 
-void fortranapi<T>::writeArray( const FINT& unit,
-				const FINT& pos,
-				const FINT& N,
-				const T* values,
-				const FINT& threadnum){
-  getfilep(unit)->set(pos, N, values, threadnum);
-}
-
-template <class T> 
-void fortranapi<T>::writeBlock( const FINT& unit,
-				const FINT& blockid,
-				const T* values,
-				const FINT& threadnum){
-  getfilep(unit)->setchunk(blockid, values, threadnum);
-}
-
-template <class T> 
-void fortranapi<T>::readArray( const FINT& unit,
-			    const FINT& pos,
-			    const FINT& N,
-			    T* values,
-			    const FINT& threadnum){
-  getfilep(unit)->get(pos, N, values, threadnum);
-}
-
-template <class T> 
-void fortranapi<T>::readBlock( const FINT& unit,
-			    const FINT& blockid,
-			    T* values,
-			    const FINT& threadnum){
-  getfilep(unit)->getchunk(blockid, values, threadnum);
-
-#ifdef DEBUG_FORBUF
-  outputfiles();
-#endif
-}
-
-template <class T> 
 void fortranapi<T>::closefile( const FINT& unit){
   getfilep(unit)->get_policy()->remove_mapper(unit);
 #ifdef DEBUG_FORBUF

@@ -86,29 +86,52 @@ public:
   void writeBlock( const FINT& unit,
 		   const FINT& blockid,
 		   const T* values,
-		   const FINT& threadnum);
+		   const FINT& threadnum){
+    getfilep(unit)->setchunk(blockid, values, threadnum);
+  };
 
   void writeArray( const FINT& unit,
 		   const FINT& pos,
 		   const FINT& N,
 		   const T* values,
-		   const FINT& threadnum);
+		   const FINT& threadnum){
+  getfilep(unit)->set(pos, N, values, threadnum);
+  };
+
+  void atomicaddElement( const FINT& unit,
+			 const FINT& pos,
+			 const T& value,
+			 const FINT& threadnum){
+    getfilep(unit)->atomic_add(pos, value, threadnum);
+  };
+
+  void atomicaddArray( const FINT& unit,
+		   const FINT& pos,
+		   const FINT& N,
+		   const T* values,
+		   const FINT& threadnum){
+    getfilep(unit)->atomic_add(pos, N, values, threadnum);
+  };  
 
   T readElement( const FINT& unit,
-		      const FINT& pos,
-		      const FINT& threadnum){
+		 const FINT& pos,
+		 const FINT& threadnum){
     return getfilep(unit)->get(pos, threadnum);}
 
   void readBlock( const FINT& unit,
 		  const FINT& blockid,
 		  T* values,
-		  const FINT& threadnum);
+		  const FINT& threadnum){
+    getfilep(unit)->getchunk(blockid, values, threadnum);
+  };
 
   void readArray( const FINT& unit,
 		  const FINT& pos,
 		  const FINT& N,
 		  T* values,
-		  const FINT& threadnum);
+		  const FINT& threadnum){
+    getfilep(unit)->get(pos, N, values, threadnum);
+  };
 
   void closefile( const FINT& unit);
 
