@@ -562,7 +562,7 @@ else{
 #endif
 
     std::lock_guard<std::mutex> lg(nodes[index].mut_ex);
-    *(ci.cchunk + offset) =+ t;    
+    *(ci.cchunk + offset) += t;    
 
   };
 
@@ -593,7 +593,7 @@ else{
 	nodes[index].mut_ex.lock();
 	p_target = ci.cchunk;
       }
-      *(p_target++) = *(p_source++);
+      *(p_target++) += *(p_source++);
     }
 
     nodes[index].mut_ex.unlock();
