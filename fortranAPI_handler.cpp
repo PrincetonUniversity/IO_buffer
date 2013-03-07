@@ -168,6 +168,7 @@ void fortranapi<T>::syncpool( const FINT& poolid){
 
 template <class T> 
 void fortranapi<T>::closepool( const FINT& poolid){
+  std::cerr << "closing pool\n"; std::cerr.flush();
   auto pp(getpolicy(poolid));
   for (auto p = files.begin(); p!=files.end(); ++p)
     {
@@ -178,7 +179,9 @@ void fortranapi<T>::closepool( const FINT& poolid){
 	}	
       }
     }
+  std::cerr << "reseting pool\n"; std::cerr.flush();
   pools[poolid].reset();
+  std::cerr << "pool reset\n"; std::cerr.flush();
 }
 
 template <class T> 

@@ -70,6 +70,7 @@ public:
   typedef typename node<T>::chunk chunk;
  
   ~mapper(){     
+    std::cerr << "start mapper destructor\n";std::cerr.flush();
     p_abstract_policy pol(policy.lock());
       // if the pol is already destroyed, the mem has already been
       // deallocated,
@@ -80,6 +81,7 @@ public:
       pol->return_all_mem(my_mapperid);
     }
     ensure_all_chunks_stored_();
+    std::cerr << "done mapper destructor\n";std::cerr.flush();
   };
 
   void set(size_t pos, 

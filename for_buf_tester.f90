@@ -122,7 +122,9 @@ call for_int_buf_writeelement(93,55,133,1)
 call for_int_buf_writeelement(93,56,133,1)
 
 ! close the for buf
-call for_double_buf_removepool(for_double_buf_poolID)
+!call for_double_buf_removepool(for_double_buf_poolID);
+
+call for_double_buf_closepool(for_double_buf_poolID);
 
 !call for_double_buf_removefile(unitFile)
 

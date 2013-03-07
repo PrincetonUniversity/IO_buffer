@@ -138,7 +138,7 @@ void test_policy(){
   if (b1.lock())
     std::cerr << "ERROR: b1 not properly cleaned up";
 
-  std::cout << "If no \"ERROR\" above, then test stage 1 is ok\n";
+  std::cout << "If no \"ERROR\" above, then test stage 1 is ok\n";  
 }
 
 bool enter_number(size_t& n, const char* input, const char* message){
