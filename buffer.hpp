@@ -17,7 +17,9 @@ public:
   filer( const std::string& file_name, 
 	 size_t nb,
 	 bool append = false );
-  ~filer(){};
+  ~filer(){
+    std::cerr "closing file"<< filename_ << "\n"; std::cerr.flush();
+  };
 
   // read a chunk at pos, exception if pos > filesize
   void read_chunk( size_t pos, T* );

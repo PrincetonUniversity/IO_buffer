@@ -297,6 +297,8 @@ void for_double_buf_closepool_( const FINT& pool_id ){
 #endif
 
   fortranapi<double>::get().closepool(pool_id);
+
+  std::cerr << "Done with closepool\n"; std::cerr.flush();
 }
 
 // close pool, free all memory, erase all files

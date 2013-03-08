@@ -78,7 +78,9 @@ public:
     stat.dump(filename() + ".stat");
 #endif
     if (pol){
+      std::cerr << "danger\n";std::cerr.flush();
       pol->return_all_mem(my_mapperid);
+      std::cerr << "danger passed\n";std::cerr.flush();
     }
     ensure_all_chunks_stored_();
     std::cerr << "done mapper destructor\n";std::cerr.flush();
