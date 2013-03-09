@@ -32,8 +32,6 @@ public:
 
   virtual ~policy_list(){
     std::cerr << "abstract_policy_destructor\n";std::cerr.flush();
-    abstract_policy<T>::return_all_mem();
-    std::cerr << "abstract_policy_destructor end\n";std::cerr.flush();
   }
 
 protected:

@@ -81,7 +81,7 @@ public:
     chunk_size_(chunk_size)
   {}; 
 
-  virtual ~abstract_policy(){};
+  virtual ~abstract_policy(){ terminate_mappers_();};
 
   void change_buffer_size(size_t N){ change_buffer_size_(N);};
 
@@ -176,6 +176,20 @@ private:
   virtual void return_all_mem_(size_t, bool) = 0;
 
   virtual void return_all_mem_( bool ) = 0;
+
+  void terminate_mappers_(){
+    std::cerr << "Freeing temporary storage\n";std::cerr.flush();
+    remove_tmp_chunks_in_mappers_(); 
+    std::cerr << "Freeing mappers\n";std::cerr.flush();
+    std::for_each( mappers.begin(), mappers.end(), 
+		   []( std::pair<size_t, p_mapper> p){
+		     std::cerr << "closing mapper " << p.second->filename() << '\n'; std::cerr.flush(); 
+		     p.second.reset();
+		     std::cerr << "Closed mapper \n";std::cerr.flush();
+		   });    
+    mappers.clear();
+    std::cerr << "Done terminate mappers\n";std::cerr.flush();
+  }
 
   void remove_tmp_chunks_in_mappers_(){
     std::for_each( mappers.begin(), mappers.end(), 

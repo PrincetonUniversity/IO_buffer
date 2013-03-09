@@ -17,8 +17,11 @@ public:
   filer( const std::string& file_name, 
 	 size_t nb,
 	 bool append = false );
+
   ~filer(){
-    std::cerr << "closing file" << filename_ << "\n"; std::cerr.flush();
+    std::cerr << "Closing " << filename() << ".\n"; std::cerr.flush();
+    ffile_.close();
+    std::cerr << "Closed " << filename() << ".\n"; std::cerr.flush();
   };
 
   // read a chunk at pos, exception if pos > filesize

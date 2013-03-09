@@ -173,8 +173,9 @@ void fortranapi<T>::syncpool( const FINT& poolid){
 
 template <class T> 
 void fortranapi<T>::closepool( const FINT& poolid){
-  std::cerr << "closing pool\n"; std::cerr.flush();
+  std::cerr << "closing pool responsible for:\n"; std::cerr.flush();
   auto pp(getpolicy(poolid));
+  output_all_known();
   for (auto p = files.begin(); p!=files.end(); ++p)
     {
       pw_mapper pm(*p); 
