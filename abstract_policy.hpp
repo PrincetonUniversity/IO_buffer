@@ -8,6 +8,7 @@
 #include <vector>
 #include <exception>
 #include <memory>
+#include <iostream>
 #include "buffer.hpp"
 
 #define FINT long long

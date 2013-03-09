@@ -18,7 +18,7 @@ public:
 	 size_t nb,
 	 bool append = false );
   ~filer(){
-    std::cerr "closing file"<< filename_ << "\n"; std::cerr.flush();
+    std::cerr << "closing file" << filename_ << "\n"; std::cerr.flush();
   };
 
   // read a chunk at pos, exception if pos > filesize
