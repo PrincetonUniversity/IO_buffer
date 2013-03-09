@@ -73,7 +73,8 @@ void for_double_buf_openfile_( const FINT& pool_id, const FINT& unit, const char
 
 }
 
-void for_double_buf_reopenfile_( const FINT& pool_id, const FINT& unit, const char* filename, const int& length){
+extern "C"
+void for_double_buf_reopenfile_( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length){
   
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_reopenfile\n";
@@ -400,7 +401,8 @@ void for_int_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* f
 
 }
 
-void for_int_buf_reopenfile_( const FINT& pool_id, const FINT& unit, const char* filename, const int& length){
+extern "C"
+void for_int_buf_reopenfile_( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length){
   
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_reopenfile\n";
