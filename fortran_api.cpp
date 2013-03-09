@@ -13,7 +13,8 @@ void for_double_buf_construct_( const FINT& maxmem, const FINT& blocksize, const
   std::cout << "maxmem        =" << maxmem << '\n'
 	    << "blocksize     =" << blocksize << '\n'
 	    << "storagepolicy =" << storagepolicy << '\n'
-            << "nthread       =" << nthread << '\n';
+            << "nthread       =" << nthread << '\n'
+            << "poolID(temp)  =" << pool_id << '\n';
 
   std::cout.flush();
 #endif
@@ -22,6 +23,14 @@ void for_double_buf_construct_( const FINT& maxmem, const FINT& blocksize, const
 					blocksize, 
 					storagepolicy, 
 					nthread);
+  
+#ifdef DEBUG_FORBUF
+  std::cout << "Calling for_double_buf_construct done\n";
+
+  std::cout << "poolid        =" << pool_id << '\n';
+
+  std::cout.flush();
+#endif
 
 }
 
@@ -41,7 +50,7 @@ void for_double_buf_changebuffersize_( const FINT& pool_id,
 }
 
 extern "C" 
-void for_double_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filename, const int& length){
+void for_double_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length){
   
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_openfile\n";
@@ -368,7 +377,7 @@ void for_int_buf_changebuffersize_( const FINT& pool_id,
 }
 
 extern "C" 
-void for_int_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filename, const int& length){
+void for_int_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length){
   
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_openfile\n";
