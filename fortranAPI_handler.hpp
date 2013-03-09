@@ -23,6 +23,18 @@ public:
   }
 };
 
+class E_unit_number_already_open: public std::exception{
+public:
+  FINT sp;
+  E_unit_number_already_open(FINT i):sp(i){};
+  
+  ~E_unit_number_already_open() throw() {};
+
+  const char* what() const throw(){
+    return "Unit number already open!";
+  }
+};
+
 class E_invalid_pool_id: public std::exception{
 public:
   FINT sp;

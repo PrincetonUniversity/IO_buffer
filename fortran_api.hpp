@@ -29,7 +29,7 @@ void for_double_buf_changebuffersize_( const FINT& pool_id, const FINT& maxmem);
 */
 
 extern "C" 
-void for_double_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filename, const int& length);
+void for_double_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length);
 
 /* 
    reopen existing file, and connect to logical unit number unit,
@@ -37,7 +37,7 @@ void for_double_buf_openfile_( const FINT& pool_id, const FINT& unit, const char
 */
 
 extern "C" 
-void for_double_buf_reopenfile_( const FINT& pool_id, const FINT& unit, const char* filename, const int& length);
+void for_double_buf_reopenfile_( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length);
 
 /* write one element to the file unit at position pos */
 extern "C"
@@ -124,7 +124,7 @@ void for_int_buf_changebuffersize_( const FINT& pool_id, const FINT& maxmem);
 */
 
 extern "C" 
-void for_int_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filename, const int& length);
+void for_int_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length);
 
 /* 
    reopen existing file, and connect to logical unit number unit,
@@ -132,7 +132,7 @@ void for_int_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* f
 */
 
 extern "C" 
-void for_int_buf_reopenfile_( const FINT& pool_id, const FINT& unit, const char* filename, const int& length);
+void for_int_buf_reopenfile_( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length);
 
 /* write one element to the file unit at position pos */
 extern "C"

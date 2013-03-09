@@ -105,6 +105,11 @@ void fortranapi<T>::openfile(const FINT& pool_id,
   if (static_cast<size_t>(unit) >= files.size()){
     files.resize(unit+1);
   } 
+  if (files[unit]){
+    std::cerr << "ERROR: Unit number " << unit << " already opened.\n";
+    throw E_unit_number_already_open(unit);
+  }
+
   files[unit] = mapper<T>::factory(filename, 
 				   unit, 
 				   getpolicy(pool_id),
