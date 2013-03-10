@@ -182,7 +182,7 @@ private:
     remove_tmp_chunks_in_mappers_(); 
     std::cerr << "Freeing mappers\n";std::cerr.flush();
     std::for_each( mappers.begin(), mappers.end(), 
-		   []( std::pair<size_t, p_mapper> p){
+		   []( std::pair<size_t, p_mapper>& p){
 		     std::cerr << "closing mapper " << p.second->filename() << '\n'; std::cerr.flush(); 
 		     p.second.reset();
 		     std::cerr << "Closed mapper \n";std::cerr.flush();
@@ -210,13 +210,13 @@ private:
     std::lock_guard<std::mutex> lock_mapper(mutex_mappers);
     if (mappers.find(index) == mappers.end()) return;
     return_all_mem_(index, save);
-    get_mapper(index).reset();
+    mappers.erase(index);
   }
 
   void assign_mapper_(p_mapper pm, size_t index) { 
     std::lock_guard<std::mutex> lock_mapper(mutex_mappers);
-    p_mapper querymp(mappers[index]);
-    if (querymp){ // index already exists!
+
+    if (mappers.find(index) != mappers.end()){ // index already exists!
       std::cout << "Mapper id " << index 
 		<< " already in use in assign_mapper\n";
 
