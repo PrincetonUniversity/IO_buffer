@@ -134,6 +134,10 @@ public:
 
   size_t mapper_count(){ return mappers.size();};
 
+  bool known_mapper( size_t index ){
+    return (mappers.find(index)!=mappers.end());
+  }
+
   p_mapper get_mapper(size_t index){
     auto pit(mappers.find(index));
     if (pit == mappers.end()){
