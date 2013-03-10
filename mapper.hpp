@@ -229,6 +229,8 @@ private:
   };    
 
   void sync_chunk_( size_t chunk_index){
+    if (chunk_index >= nodes.size())
+      return;
     node<T>& cn(nodes[chunk_index]);
     if ( cn.status==node<T>::modified){
       file_data.write_chunk(chunk_index,&cn.data[0]);    
@@ -299,6 +301,12 @@ private:
   chunk release_chunk_(size_t chunk_index, 
 		       bool save,
 		       bool force){    
+
+    if (chunk_index >= nodes.size()){
+      std::cerr << "ERROR: releasing chunk "<<chunk_index
+		<<" we do not have - bad\n";
+      throw (E_invalid_mapper_id(chunk_index));
+    }      
 
     while (nodereleasebarrier.exchange(true)){};
     ++nodereleasecount;
