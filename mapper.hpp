@@ -77,6 +77,10 @@ public:
     stat.dump(filename() + ".stat");
 #endif    
     ensure_all_chunks_stored_();
+    std::cerr << "empty nodes\n";std::cerr.flush();
+    nodes.clear();
+    std::cerr << "empty currentinfo\n";std::cerr.flush();
+    currentinfo.clear();
     std::cerr << "done mapper destructor\n";std::cerr.flush();
   };
 
