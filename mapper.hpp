@@ -346,21 +346,23 @@ private:
     ci.writeindex = -1;
 
     if (oldindex != static_cast<size_t>(-1)){
-      node<T>& cn(nodes[oldindex]);      
-      std::lock_guard< decltype(cn.mut_ex) > lg(cn.mut_ex);
-      
-      if (ci.status != tcurrentinfo::alive){
-	bool save = true;
-	if (ci.status == tcurrentinfo::ghost)
-	  save = false;
+      if (oldindex < nodes.size()){
+	node<T>& cn(nodes[oldindex]);      
+	std::lock_guard< decltype(cn.mut_ex) > lg(cn.mut_ex);
 	
-	if (deprecate_use(oldindex, save, false)){
-	  // we can now free chunk, no one uses it any more
-	  store_chunk_(cn, oldindex, save);
-	  cn.data.resize(0);
-	  cn.data.shrink_to_fit();
-	}
-      }      
+	if (ci.status != tcurrentinfo::alive){
+	  bool save = true;
+	  if (ci.status == tcurrentinfo::ghost)
+	    save = false;
+	  
+	  if (deprecate_use(oldindex, save, false)){
+	    // we can now free chunk, no one uses it any more
+	    store_chunk_(cn, oldindex, save);
+	    cn.data.resize(0);
+	    cn.data.shrink_to_fit();
+	  }
+	}    
+      }  
     }    
     ci.status = tcurrentinfo::alive;    
 
