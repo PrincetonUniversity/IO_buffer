@@ -151,7 +151,8 @@ public:
   };
 
 private:
-  std::map< size_t, std::shared_ptr<mapper<T> > > mappers;
+  typedef std::map< size_t, std::shared_ptr<mapper<T> > > t_mappers;
+  t_mappers mappers;
 
 protected:
   decltype( mappers.cbegin()) get_mapper_begin() const { 
@@ -182,7 +183,7 @@ private:
     remove_tmp_chunks_in_mappers_(); 
     std::cerr << "Freeing mappers\n";std::cerr.flush();
     std::for_each( mappers.begin(), mappers.end(), 
-		   []( std::pair<size_t, p_mapper>& p){
+		   []( typename t_mappers::value_type& p){
 		     std::cerr << "closing mapper " << p.second->filename() << '\n'; std::cerr.flush(); 
 		     p.second.reset();
 		     std::cerr << "Closed mapper \n";std::cerr.flush();
@@ -193,7 +194,7 @@ private:
 
   void remove_tmp_chunks_in_mappers_(){
     std::for_each( mappers.begin(), mappers.end(), 
-		   []( std::pair<size_t, p_mapper> p){
+		   []( typename t_mappers::value_type& p){
 		     p.second->remove_temporary_chunks();
 		   });
   }
@@ -223,7 +224,7 @@ private:
       std::cout << "The following mappers are assigned to this policy:\n";
 
       std::for_each(mappers.begin(), mappers.end(),[]
-		    (decltype(*(mappers.begin())) p){
+		    (typename t_mappers::value_type& p){
 		      std::cout << p.second->filename() 
 				<< ' ' << p.first << '\n';});
 
