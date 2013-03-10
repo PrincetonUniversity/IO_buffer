@@ -123,7 +123,8 @@ private:
     std::lock_guard<std::mutex> lock_mapper(mutex_in_memory);
     in_memory_push_front(chunkindex(index,pos)); 
     if ( ! unused_chunks.empty()){
-      chunk cn(std::move(unused_chunks.back()));
+      chunk cn;
+      cn.swap(unused_chunks.back());
       unused_chunks.pop_back();
       return cn;
     }

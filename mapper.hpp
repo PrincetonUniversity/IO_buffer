@@ -78,6 +78,7 @@ public:
 #endif    
     ensure_all_chunks_stored_();
     std::cerr << "empty nodes\n";std::cerr.flush();
+    std::cerr << "nodes size " << nodes.size() << " \n";std::cerr.flush();
     nodes.clear();
     std::cerr << "empty currentinfo\n";std::cerr.flush();
     currentinfo.clear();
@@ -311,6 +312,8 @@ private:
     // this thread now has exclusive access to this node
 
     if ( ! deprecate_use(chunk_index, save, force) ){
+      std::cerr << "chunk is in use: create new chunk to return to policy\n";
+      std::cerr.flush();
       // chunk is in use: create new chunk to return to policy
       --nodereleasecount;
       chunk c(chunk_size);      

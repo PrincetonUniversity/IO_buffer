@@ -53,17 +53,18 @@ struct node{
 
   node():
     status(empty),
-    data()
-    
+    data()    
   {};
 
   // nodes should never be copied
   node(const node&) = delete;
 
   node(node&& n) noexcept:
-  status(n.status),
-  data(std::move(n.data))			     
-  {}
+  status(n.status)
+  {   
+    data.swap(n.data);
+  }
+
 };
 
 template <class T>
