@@ -485,7 +485,7 @@ else{
     auto p_target(ci.cchunk + offset);
 
     for (size_t i =0; i < N; ++i){
-      if (offset == chunk_size){
+      if (offset++ == chunk_size){
 	offset = 0;
 	prepare_node(++index, ci, threadnum, true);
 	p_target = ci.cchunk;
@@ -599,7 +599,7 @@ else{
 
     for (size_t i =0; i < N; ++i){
       // check whether we are at end of block
-      if (offset == chunk_size){	
+      if (offset++ == chunk_size){	
 	offset = 0;
 	// release previous lock
 	nodes[index].mut_ex.unlock();
@@ -632,7 +632,7 @@ else{
     auto p_source(ci.cchunk + offset);
 
     for (size_t i =0; i < N; ++i){
-      if (offset == chunk_size){
+      if (offset++ == chunk_size){
 	offset = 0;
 	prepare_node( ++index, ci, threadnum, false);
 	p_source = ci.cchunk;

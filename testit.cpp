@@ -39,6 +39,31 @@ void do_work( size_t threadnum, size_t nthread, size_t RAMsize ){
   finalsummutex.unlock();
 }
 
+void test_array( size_t threadnum, size_t nthread, size_t RAMsize ){
+
+  double sum(0.);
+  
+  double a[20];
+
+  for (size_t i = 0; i < 20; ++i)
+    a[i] = 0.5892*(i%20);
+
+  for (size_t i = threadnum; i < RAMsize; i += (nthread)){
+    for_double_buf_writearray_(49,i,20,a,threadnum);
+  }
+
+  for (size_t i = threadnum; i < RAMsize; i += (nthread)){
+    double b[20];
+    for_double_buf_readarray_(49,i,20,b,threadnum);
+    for (size_t j = 0; j < 20; ++j)
+      sum += b[j]; 
+  }
+
+  finalsummutex.lock();
+  finalsum += sum;
+  finalsummutex.unlock();
+}
+
 void test_parallelization(size_t nthread, size_t Nchunk ){
 
   FINT pool_id;
@@ -60,6 +85,21 @@ void test_parallelization(size_t nthread, size_t Nchunk ){
 
   for (size_t ithread=0; ithread < nthread; ++ithread){
     threads[ithread]->join();
+    delete threads[ithread];
+  }  
+  std::cout << "threads complete" << '\n';
+
+  std::cout << finalsum << '\n';
+
+  std::cout << "Testing arrays " << '\n';
+
+  for (size_t ithread=0; ithread < nthread; ++ithread){
+    threads[ithread] = new std::thread(test_array,ithread+1,nthread,RAMsize); 
+  }
+
+  for (size_t ithread=0; ithread < nthread; ++ithread){
+    threads[ithread]->join();
+    delete threads[ithread];
   }  
   std::cout << "threads complete" << '\n';
 
