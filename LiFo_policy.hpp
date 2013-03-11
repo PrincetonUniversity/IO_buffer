@@ -49,7 +49,6 @@ public:
   }; 
 
   virtual ~policy_LiFo(){
-      std::cerr << "LiFo destructor\n";std::cerr.flush();
   }
 
 private:

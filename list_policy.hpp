@@ -31,7 +31,6 @@ public:
   {}; 
 
   virtual ~policy_list(){
-    std::cerr << "abstract_policy_destructor\n";std::cerr.flush();
   }
 
 protected:
@@ -93,15 +92,12 @@ private:
   }
  
   void return_all_mem_(bool save) OVERRIDE { 
-    std::cerr << "returning all mem\n" << in_memory_size() << '\n';
-    std::cerr.flush();
     while (in_memory_size()) {
       const chunkindex& ci(in_memory.back());
       auto pm(get_mapper(ci.i_mapper));      
       unused_chunks.push_back(pm->release_chunk(ci.i_chunk, save));
       in_memory_pop_back();      
     }
-    std::cerr << "returning all mem done\n";std::cerr.flush();
   }
 
   void return_all_mem_(size_t index, bool save) OVERRIDE { 

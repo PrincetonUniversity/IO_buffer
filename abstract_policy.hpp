@@ -184,17 +184,12 @@ private:
   virtual void return_all_mem_( bool ) = 0;
 
   void terminate_mappers_(){
-    std::cerr << "Freeing temporary storage\n";std::cerr.flush();
     remove_tmp_chunks_in_mappers_(); 
-    std::cerr << "Freeing mappers\n";std::cerr.flush();
     std::for_each( mappers.begin(), mappers.end(), 
 		   []( typename t_mappers::value_type& p){
-		     std::cerr << "closing mapper " << p.second->filename() << '\n'; std::cerr.flush(); 
 		     p.second.reset();
-		     std::cerr << "Closed mapper \n";std::cerr.flush();
 		   });    
     mappers.clear();
-    std::cerr << "Done terminate mappers\n";std::cerr.flush();
   }
 
   void remove_tmp_chunks_in_mappers_(){

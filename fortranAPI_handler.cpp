@@ -33,7 +33,7 @@ template <class T>
 void fortranapi<T>::output_all_known(){
   for (size_t i = 0; i < files.size(); ++i){
       if (pw_mapper p = files[i])
-	std::cerr << i << ' ' << p->filename() << '\n';
+	std::cout << i << ' ' << p->filename() << '\n';
     } 
 }
 
@@ -138,8 +138,6 @@ void fortranapi<T>::removefile( const FINT& unit){
   oss << "rm " << getfilep(unit)->filename() << '\n';
 
   getfilep(unit)->get_policy()->remove_mapper(unit, false);
-  std::cerr << "REMOVING FILE " << unit << "\n";
-  std::cerr.flush();
   files[unit] = NULL; // remove shared_ptr, 
   // not getfilep(unit).reset(), that would just reset the temporary 
 
@@ -173,7 +171,7 @@ void fortranapi<T>::syncpool( const FINT& poolid){
 
 template <class T> 
 void fortranapi<T>::closepool( const FINT& poolid){
-  std::cerr << "closing pool responsible for:\n"; std::cerr.flush();
+  std::cout << "closing pool responsible for:\n"; std::cerr.flush();
   auto pp(getpolicy(poolid));
   output_all_known();
   for (auto p = files.begin(); p!=files.end(); ++p)
