@@ -41,7 +41,7 @@ public:
 	      size_t chunk_size,
 	      size_t nth): 
     policy_list<T>(max_in_mem, chunk_size, nth),
-    threadswap(2*nth, chunkindex(std::string::npos, std::string::npos))
+    threadswap(2*nth, typename policy_list<T>::chunkindex(std::string::npos, std::string::npos))
   {
     if (max_in_mem < 2*abstract_policy<T>::nthread())
       throw E_Policy_error("policy_LiFo constructor: "
@@ -54,7 +54,7 @@ public:
 private:
   policy_LiFo();
 
-  std::vector< chunkindex > threadswap; // Last storage space for swapping out threads
+  std::vector< typename policy_list<T>::chunkindex > threadswap; // Last storage space for swapping out threads
 
   size_t navail(){
     return max_in_mem() - 2 * abstract_policy<T>::nthread();
@@ -68,7 +68,7 @@ private:
       if (threadnum >= abstract_policy<T>::nthread())
 	throw E_Policy_error("LiFo_policy:find_memory: Threadnum invalid!");
 
-      chunkindex ci(threadswap[threadnum*2]);
+      typename policy_list<T>::chunkindex ci(threadswap[threadnum*2]);
       threadswap[threadnum*2] = threadswap[threadnum*2+1];
       threadswap[threadnum*2+1] = policy_list<T>::in_memory_front();
       // undo the push_front in list_policy::get_memory

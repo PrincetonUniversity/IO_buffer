@@ -14,7 +14,7 @@ CPP=g++
 endif
 
 #CFLAGS= -D_REENTRANT -std=c++11 -Wall -Wextra -g -pedantic
-CFLAGS= -D_REENTRANT -std=c++11 -O3 -Wall -Wextra -g -pedantic
+CFLAGS= -D_REENTRANT -std=c++0x -O3 -Wall -Wextra -g -pedantic
 LFLAGS= -lpthread
 
 # uncomment to make code faster but use less error-checking
@@ -46,12 +46,12 @@ clean:
 
 depend:	$(PACKAGES_DEPEND) 
 	@makedepend -fmake.dep  testit.cpp $(SOURCES) $(HEADERS) $(TEMPLATES)
-#
-#make.dep:	createmdep depend
-#
-#PHONY:	createmdep
-#
-#createmdep:
-#	touch make.dep
+
+make.dep:	createmdep depend
+
+PHONY:	createmdep
+
+createmdep:
+	touch make.dep
 
 include make.dep

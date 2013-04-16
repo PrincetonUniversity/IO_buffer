@@ -8,7 +8,7 @@
 #ifdef __INTEL_COMPILER
 #define OVERRIDE  
 #else
-#define OVERRIDE override
+#define OVERRIDE  
 #endif
 
 // This very simple policy implements a single last-in-first-out
@@ -54,7 +54,14 @@ protected:
   chunkindex& in_memory_front(){ return in_memory.front();};
 
   void in_memory_pop_front(){ --in_memory_size_; in_memory.pop_front();};
+
   void in_memory_push_front(chunkindex ci){ ++in_memory_size_; in_memory.push_front(ci);};
+
+
+
+
+
+
 
   void in_memory_pop_back(){ --in_memory_size_; in_memory.pop_back();};
   void in_memory_push_back(chunkindex ci){ ++in_memory_size_; in_memory.push_back(ci);};
