@@ -44,14 +44,14 @@ for_buf_tester:	libforbuf.a for_buf_tester.f90
 clean:	
 	rm *.o *.a
 
-depend:	$(PACKAGES_DEPEND) 
-	@makedepend -fmake.dep  testit.cpp $(SOURCES) $(HEADERS) $(TEMPLATES)
-
-make.dep:	createmdep depend
-
-PHONY:	createmdep
-
-createmdep:
-	touch make.dep
+#depend:	$(PACKAGES_DEPEND) 
+#	@makedepend -fmake.dep  testit.cpp $(SOURCES) $(HEADERS) $(TEMPLATES)
+#
+#make.dep:	createmdep depend
+#
+#PHONY:	createmdep
+#
+#createmdep:
+#	touch make.dep
 
 include make.dep

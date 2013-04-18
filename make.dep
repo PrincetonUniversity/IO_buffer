@@ -1,0 +1,25 @@
+# DO NOT DELETE
+
+testit.o: buffer.hpp buffer.tpp mapper.hpp abstract_policy.hpp spin_lock.hpp
+testit.o: LiFo_policy.hpp list_policy.hpp fortranAPI_handler.hpp
+testit.o: singleton.hpp fortran_api.hpp
+fortran_api.o: fortran_api.hpp fortranAPI_handler.hpp mapper.hpp
+fortran_api.o: abstract_policy.hpp buffer.hpp buffer.tpp spin_lock.hpp
+fortran_api.o: singleton.hpp
+fortranAPI_handler.o: fortranAPI_handler.hpp mapper.hpp abstract_policy.hpp
+fortranAPI_handler.o: buffer.hpp buffer.tpp spin_lock.hpp singleton.hpp
+fortranAPI_handler.o: LiFo_policy.hpp list_policy.hpp
+LiFo_policy.o: LiFo_policy.hpp mapper.hpp abstract_policy.hpp buffer.hpp
+LiFo_policy.o: buffer.tpp spin_lock.hpp list_policy.hpp
+mapper.o: mapper.hpp abstract_policy.hpp buffer.hpp buffer.tpp spin_lock.hpp
+buffer.o: buffer.hpp buffer.tpp
+buffer.o: buffer.tpp buffer.hpp
+mapper.o: abstract_policy.hpp buffer.hpp buffer.tpp spin_lock.hpp
+abstract_policy.o: buffer.hpp buffer.tpp
+LiFo_policy.o: mapper.hpp abstract_policy.hpp buffer.hpp buffer.tpp
+LiFo_policy.o: spin_lock.hpp list_policy.hpp
+list_policy.o: mapper.hpp abstract_policy.hpp buffer.hpp buffer.tpp
+list_policy.o: spin_lock.hpp
+fortranAPI_handler.o: mapper.hpp abstract_policy.hpp buffer.hpp buffer.tpp
+fortranAPI_handler.o: spin_lock.hpp singleton.hpp
+buffer.o: buffer.hpp buffer.tpp
