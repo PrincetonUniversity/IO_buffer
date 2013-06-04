@@ -1,3 +1,6 @@
+# Note that CPP isn't defined here
+# Whatever program is compiling this library needs to supply it!
+
 SOURCES = fortran_api.cpp fortranAPI_handler.cpp LiFo_policy.cpp	\
 mapper.cpp buffer.cpp 
 HEADERS = buffer.hpp mapper.hpp fortran_api.hpp abstract_policy.hpp LiFo_policy.hpp	\
@@ -6,12 +9,6 @@ TEMPLATES = buffer.tpp
 
 OBJECTS = $(SOURCES:%.cpp=%.o)
 
-MACHINE = $(shell uname -n)
-ifeq ($(MACHINE),tiger2)
-CPP=icpc
-else
-CPP=g++
-endif
 
 #CFLAGS= -D_REENTRANT -std=c++11 -Wall -Wextra -g -pedantic
 CFLAGS= -D_REENTRANT -std=c++0x -O3 -Wall -Wextra -g -pedantic
