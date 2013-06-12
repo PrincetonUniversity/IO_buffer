@@ -109,6 +109,40 @@ void test_parallelization(size_t nthread, size_t Nchunk ){
   for_double_buf_removepool_(pool_id);
 }
 
+void test_smallfile_fortran(){
+  FINT pool_id;
+
+  const size_t chunksize = 125000; // 1MB chunks
+
+  for_double_buf_construct_(20,chunksize,0,4,pool_id);
+
+  for_double_buf_openfile_(pool_id, 48, "buf_F1.dat",10);
+  for_double_buf_openfile_(pool_id, 49, "buf_F2.dat",10);
+
+  double sum(0);
+  double value;
+
+  for (size_t i = 0; i < 5; ++i){
+    for_double_buf_writeelement_(48,i,0.5892*(i%20),1);
+  }
+  for (size_t i = 0; i < 5; ++i){
+    for_double_buf_readelement_(48,i,value,1);
+    sum += value; 
+  }
+  for_double_buf_removefile_( 48 );
+
+  std::cerr << "Closed smallfile\n";
+
+  for (size_t i = 0; i < 500000; ++i){
+    for_double_buf_writeelement_(49,i,0.5892*(i%20),1);
+  }
+
+  std::cout << sum << '\n';
+
+  for_double_buf_removepool_(pool_id);
+
+}
+
 void test_fortranapi(size_t Nchunk){
   FINT pool_id;
 
@@ -227,4 +261,6 @@ int main(int argc, char** argv){
     std::cout << "Launching with " << Nchunks << " chunks and " << Nthreads << " threads\n"; 
     test_parallelization(Nthreads, Nchunks); 
   }
+  std::cout << "Smallfile test\n";
+  test_smallfile_fortran();
 }

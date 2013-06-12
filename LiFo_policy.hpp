@@ -115,10 +115,18 @@ private:
     if ( policy_list<T>::in_memory_size() < max_in_mem()){
       return chunk(abstract_policy<T>::chunk_size(),0);
     }else{
-      auto pm(get_mapper(policy_list<T>::in_memory_back().i_mapper));
-      size_t ic(policy_list<T>::in_memory_back().i_chunk);
-      policy_list<T>::in_memory_pop_back();
-      return pm->release_chunk(ic);
+	try{
+	    auto pm(get_mapper(policy_list<T>::in_memory_back().i_mapper));
+	    size_t ic(policy_list<T>::in_memory_back().i_chunk);
+	    policy_list<T>::in_memory_pop_back();
+	    return pm->release_chunk(ic);
+	} catch (E_invalid_mapper_id){
+	    std::cerr << "possible MEMORY CORRUPTION in LiFo_policy: want"
+		      << "to deallocate chunk owned by dead mapper"
+		      <<" Continuing with crossed fingers ...\n";
+	    policy_list<T>::in_memory_pop_back();
+	    return chunk(abstract_policy<T>::chunk_size(),0);
+	}
     }
   }
 };
