@@ -85,7 +85,8 @@ private:
   void sync_() OVERRIDE{
         std::for_each(in_memory.begin(), in_memory.end(), 
     		  [this](chunkindex& ci){
-    		    this->get_mapper(ci.i_mapper)->sync(ci.i_chunk);
+    		    this->get_mapper(
+			ci.i_mapper)->sync(ci.i_chunk);
     		      });
   }
  
@@ -107,15 +108,26 @@ private:
     }
   }
 
-  void return_all_mem_(size_t index, bool save) OVERRIDE { 
-    p_mapper pm( get_mapper(index));
-    in_memory.remove_if( [index, this, pm, save](chunkindex& ci) -> bool{
-    	if (ci.i_mapper == index){
-    	  unused_chunks.push_back(pm->release_chunk(ci.i_chunk, save));
-    	  return true;
-    	} else { return false; }}
-      );    
-    in_memory_size_ = in_memory.size();
+  void return_all_mem_(size_t index, bool save) OVERRIDE 
+  { 
+      try{
+	  p_mapper pm( get_mapper(index));
+	  in_memory.remove_if( [index, 
+				this, 
+				pm, 
+				save](chunkindex& ci) -> bool
+			       {
+				   if (ci.i_mapper == index){
+				       unused_chunks.push_back(pm->release_chunk(ci.i_chunk, save));
+				       return true;
+				   } else { return false; }}
+	      );    
+	  in_memory_size_ = in_memory.size();
+      } catch (E_invalid_mapper_id){
+	  std::cerr << "MEMORY CORRUPTION in list_policy:"
+		    << "return_all_mem finds dead mapper"
+		    <<" Continuing with crossed fingers ...\n";
+      }
   }
 
   // routine to determine where to find a new memory block

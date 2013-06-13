@@ -79,8 +79,15 @@ private:
       if (ci.i_mapper == std::string::npos){
 	return chunk(abstract_policy<T>::chunk_size(),0);
       }else{
-	auto pm(get_mapper(ci.i_mapper));
-	return pm->release_chunk(ci.i_chunk,true , false);
+	  try{
+	      auto pm(get_mapper(ci.i_mapper));
+	      return pm->release_chunk(ci.i_chunk,true , false);
+	  } catch (E_invalid_mapper_id){
+	      std::cerr << "MEMORY CORRUPTION in LiFo_policy:"
+			<< "find_memory discovers dead mapper"
+			<<" Continuing with crossed fingers ...\n";
+	      return chunk(abstract_policy<T>::chunk_size(),0);
+	}
       }      
     }
   }
