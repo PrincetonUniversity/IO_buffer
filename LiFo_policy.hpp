@@ -83,9 +83,8 @@ private:
 	      auto pm(get_mapper(ci.i_mapper));
 	      return pm->release_chunk(ci.i_chunk,true , false);
 	  } catch (E_invalid_mapper_id){
-	      std::cerr << "MEMORY CORRUPTION in LiFo_policy:"
-			<< "find_memory discovers dead mapper"
-			<<" Continuing with crossed fingers ...\n";
+	      // This happens if a mapper was closed while one of its chunks
+	      // sat on the threadswap temporal space
 	      return chunk(abstract_policy<T>::chunk_size(),0);
 	}
       }      
@@ -128,9 +127,7 @@ private:
 	    policy_list<T>::in_memory_pop_back();
 	    return pm->release_chunk(ic);
 	} catch (E_invalid_mapper_id){
-	    std::cerr << "possible MEMORY CORRUPTION in LiFo_policy: want"
-		      << "to deallocate chunk owned by dead mapper"
-		      <<" Continuing with crossed fingers ...\n";
+	    std::cerr << "LiLo Policy:find_memory deallocate expired chunk\n";
 	    policy_list<T>::in_memory_pop_back();
 	    return chunk(abstract_policy<T>::chunk_size(),0);
 	}

@@ -124,9 +124,7 @@ private:
 	      );    
 	  in_memory_size_ = in_memory.size();
       } catch (E_invalid_mapper_id){
-	  std::cerr << "MEMORY CORRUPTION in list_policy:"
-		    << "return_all_mem finds dead mapper"
-		    <<" Continuing with crossed fingers ...\n";
+	  std::cerr << "list_policy: return_all_mem found stale mapper\n";
       }
   }
 
