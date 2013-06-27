@@ -54,15 +54,7 @@ protected:
   chunkindex& in_memory_front(){ return in_memory.front();};
 
   void in_memory_pop_front(){ --in_memory_size_; in_memory.pop_front();};
-
   void in_memory_push_front(chunkindex ci){ ++in_memory_size_; in_memory.push_front(ci);};
-
-
-
-
-
-
-
   void in_memory_pop_back(){ --in_memory_size_; in_memory.pop_back();};
   void in_memory_push_back(chunkindex ci){ ++in_memory_size_; in_memory.push_back(ci);};
 
@@ -123,6 +115,9 @@ private:
 				   } else { return false; }}
 	      );    
 	  in_memory_size_ = in_memory.size();
+
+	  return_tmp_memory(index, save);
+
       } catch (E_invalid_mapper_id){
 	  std::cerr << "list_policy: return_all_mem found stale mapper\n";
       }
@@ -131,6 +126,9 @@ private:
   // routine to determine where to find a new memory block
   // guaranteed to only be entered by one thread at a time
   virtual chunk  find_memory(size_t) = 0;
+
+  // routine to free any tmp memory associated with a mapper
+  virtual void return_tmp_memory(size_t index, bool save) = 0;
 
   chunk get_memory_(size_t index, size_t pos, size_t threadnum) OVERRIDE{ 
     std::lock_guard<std::mutex> lock_mapper(mutex_in_memory);

@@ -60,6 +60,16 @@ private:
     return max_in_mem() - 2 * abstract_policy<T>::nthread();
   };
 
+   void return_tmp_memory(size_t index, bool save) OVERRIDE{
+      for (auto p = threadswap.begin(); p != threadswap.end(); ++p){
+	  if (p->i_mapper == index){
+	      auto pm(get_mapper(p->i_mapper));
+	      unused_chunks.push_back(pm->release_chunk(p->i_chunk, save));
+	      p->i_mapper = std::string::npos;
+	  }
+      }
+  } 
+
   chunk find_memory(size_t threadnum) OVERRIDE{
     if (policy_list<T>::in_memory_size() <= navail() ){
       return chunk(abstract_policy<T>::chunk_size(),0);
@@ -85,6 +95,7 @@ private:
 	  } catch (E_invalid_mapper_id){
 	      // This happens if a mapper was closed while one of its chunks
 	      // sat on the threadswap temporal space
+	      std::cerr << "LiFo_policy:find_memory reassigned stale chunk.\n";
 	      return chunk(abstract_policy<T>::chunk_size(),0);
 	}
       }      
@@ -116,6 +127,10 @@ private:
 
   using policy_list<T>::unused_chunks;
   using policy_list<T>::max_in_mem;
+
+  void return_tmp_memory(size_t, bool) OVERRIDE{
+      // no tmp memory structures
+  }
 
   chunk find_memory(size_t) OVERRIDE{
     if ( policy_list<T>::in_memory_size() < max_in_mem()){
