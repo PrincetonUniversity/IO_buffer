@@ -71,6 +71,12 @@ void for_double_buf_readblock_( const FINT& unit, const FINT& block, double* val
 extern "C"
 void for_double_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N, double* values, const FINT& threadnum);
 
+/* direct access to pointer to block, will be kept in memory until freed or buffer closed*/
+extern "C"
+void for_double_buf_get_c_pointer( const FINT& unit, const FINT& block, double** values, const FINT& threadnum, FINT& blocksize);
+extern "C"
+void for_double_buf_free_c_pointer( const FINT& unit, const FINT& block);
+
 // close file or entire pool, save content to disk before closing
 extern "C"
 void for_double_buf_closefile_( const FINT& unit);
@@ -97,6 +103,7 @@ extern "C"
 void for_double_buf_syncfile_( const FINT& unit);
 extern "C"
 void for_double_buf_syncpool_( const FINT& pool_id);
+
 
 /*
   construct memory buffer in RAM, maxmem number of blocks in mem, 
@@ -165,6 +172,12 @@ void for_int_buf_readblock_( const FINT& unit, const FINT& block, FINT* values, 
 /* read N elements from the file unit starting at position pos */
 extern "C"
 void for_int_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N, FINT* values, const FINT& threadnum);
+
+/* direct access to pointer to block, will be kept in memory until freed or buffer closed*/
+extern "C"
+void for_int_buf_get_c_pointer( const FINT& unit, const FINT& block, FINT** values, const FINT& threadnum, FINT& blocksize);
+extern "C"
+void for_int_buf_free_c_pointer( const FINT& unit, const FINT& block);
 
 // close file or entire pool, save content to disk before closing
 extern "C"

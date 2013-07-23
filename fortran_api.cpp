@@ -225,6 +225,40 @@ void for_double_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N
   fortranapi<double>::get().readArray(unit, pos, N, values, threadnum-1);
 }
 
+// get and free pointer memory
+extern "C"
+void for_double_buf_get_c_pointer( const FINT& unit, 
+				   const FINT& block, 
+				   double** values, 
+				   const FINT& threadnum, 
+				   FINT& blocksize){
+#ifdef DEBUG_FORBUF
+    std::cout << "Called for_double_buf_get_c_pointer\n";
+  std::cout  << "unit     =" << unit << '\n'
+	     << "block      =" << block << '\n'
+	     << "threadnum=" << threadnum << '\n'
+	     << "blocksize        =" << blocksize << '\n';
+  std::cout.flush();
+#endif
+
+  fortranapi<double>::get().get_c_pointer(unit, block, values, threadnum, blocksize);
+}
+
+// get and free pointer memory
+extern "C"
+void for_double_buf_free_c_pointer( const FINT& unit, 
+				   const FINT& block){
+#ifdef DEBUG_FORBUF
+    std::cout << "Called for_double_buf_free_c_pointer\n";
+  std::cout  << "unit     =" << unit << '\n'
+	     << "block      =" << block << '\n'
+	     << "threadnum=" << threadnum << '\n';
+  std::cout.flush();
+#endif
+
+  fortranapi<double>::get().free_c_pointer(unit, block);
+}
+
 // close file, flush before closing
 extern "C"
 void for_double_buf_closefile_( const FINT& unit){
@@ -546,6 +580,40 @@ void for_int_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N, F
 #endif
 
   fortranapi<FINT>::get().readArray(unit, pos, N, values, threadnum-1);
+}
+
+// get and free pointer memory
+extern "C"
+void for_int_buf_get_c_pointer( const FINT& unit, 
+				const FINT& block, 
+				FINT** values, 
+				const FINT& threadnum, 
+				FINT& blocksize){
+#ifdef DEBUG_FORBUF
+    std::cout << "Called for_int_buf_get_c_pointer\n";
+  std::cout  << "unit     =" << unit << '\n'
+	     << "block      =" << block << '\n'
+	     << "threadnum=" << threadnum << '\n'
+	     << "blocksize        =" << blocksize << '\n';
+  std::cout.flush();
+#endif
+
+  fortranapi<FINT>::get().get_c_pointer(unit, block, values, threadnum, blocksize);
+}
+
+// get and free pointer memory
+extern "C"
+void for_int_buf_free_c_pointer( const FINT& unit, 
+				 const FINT& block){
+#ifdef DEBUG_FORBUF
+    std::cout << "Called for_int_buf_free_c_pointer\n";
+  std::cout  << "unit     =" << unit << '\n'
+	     << "block      =" << block << '\n'
+	     << "threadnum=" << threadnum << '\n';
+  std::cout.flush();
+#endif
+
+  fortranapi<FINT>::get().free_c_pointer(unit, block);
 }
 
 // close file, flush before closing

@@ -28,6 +28,8 @@ struct statistics{
   size_t n_fastwrite;
   size_t n_fastread;
   size_t n_not_modified;
+  size_t n_get_pointer;
+  size_t n_free_pointer;
   size_t n_blanked;
 
   statistics(): n_read_buff(0),
@@ -38,6 +40,8 @@ struct statistics{
 		n_fastwrite(0),
 		n_fastread(0),
 		n_not_modified(0),
+		n_get_pointer(0),
+		n_free_pointer(0),
 		n_blanked(0)
   {};
 
@@ -50,7 +54,8 @@ struct statistics{
     ofs << n_IO_avoided << " non-optimized (chunk miss) IO operations in RAM\n";
     ofs << n_fastwrite  << " optimized IO operations in RAM\n";
     ofs << n_fastread   << " optimized IO operations in RAM\n";
-
+    ofs << n_get_pointer << " requests for getting raw pointer\n";
+    ofs << n_free_pointer << " requests to free raw pointer\n";
     ofs << n_not_modified << " writes avoided as chunk not modified in RAM\n";
     ofs << n_blanked << " reads saved because chunk not on file\n";
   }
@@ -105,9 +110,19 @@ public:
 	   size_t N, 
 	   T* t, 
 	   size_t threadnum) { get_(pos, N, t, threadnum);};  
+
   void getchunk(size_t N, 
 		T* t,
 		size_t threadnum) { getchunk_(N, t, threadnum);};  
+
+
+    void get_pointer(size_t N,
+		     T** values,
+		     size_t threadnum,
+		     size_t& blocksize){ blocksize = chunk_size; 
+	getpointer_(N,values, threadnum);};
+
+    void free_pointer(size_t N){ freepointer_(N);};
 
 
   // write all buffers to disk
@@ -237,6 +252,9 @@ private:
 		     bool save,
 		     bool force){
 
+    if (nodes[chunk_index].borrowed)
+        return false;
+        
     bool success(true);
 
     //lock all the current_info muteces, 
@@ -293,9 +311,10 @@ private:
 		  });
   }
 
-  chunk release_chunk_(size_t chunk_index, 
-		       bool save,
-		       bool force){    
+  chunk release_chunk_(size_t chunk_index, // index of chunk to release
+		       bool save, // save to disk ?
+		       bool force, // force delete also if chunk used elsewhere
+                       bool borrowed = false){ // was borrowed
 
     if (chunk_index >= nodes.size()){
       std::cerr << "ERROR: releasing chunk "<<chunk_index
@@ -313,7 +332,12 @@ private:
     std::lock_guard< decltype(cn.mut_ex) > lg(cn.mut_ex);
 
     // this thread now has exclusive access to this node
+    
+    // if borrowed, decrease use count
+    if (borrowed)
+        --cn.borrowed;    
 
+    // ask whether chunk can be freed
     if ( ! deprecate_use(chunk_index, save, force) ){
       // chunk is in use: create new chunk to return to policy
       --nodereleasecount;
@@ -373,7 +397,8 @@ private:
   void prepare_node( size_t index, 
 		     tcurrentinfo& ci, 
 		     size_t threadnum,
-		     const bool modify){
+		     const bool modify,
+                     const bool borrow = false){
 
     // if too small nodes, then we have a problem: need to
     // resize without breaking other threads 
@@ -421,8 +446,12 @@ private:
       }
 
       cn.status=node<T>::loaded;
-	
+      
     }
+
+    // if this is a borrow request, increase the borrow count of the node
+    if (borrow) 
+        ++cn.borrowed;	
 
     // lock mutex again, update information
     ci.index = index;
@@ -658,6 +687,32 @@ else{
 
     memcpy(p_target, p_source, chunk_size * sizeof(T) );
   };
+
+  void getpointer_(size_t index, T** t, size_t threadnum){
+
+#ifdef COLLECT_STATISTICS
+    ++stat.n_get_pointer;
+#endif    
+
+    tcurrentinfo& ci(currentinfo[threadnum]);
+    
+    prepare_node(index, ci, threadnum, false, true);
+
+    (*t) = &(*ci.cchunk);    
+    
+  };
+
+  void freepointer_(size_t index){
+
+#ifdef COLLECT_STATISTICS
+    ++stat.n_get_pointer;
+#endif
+    // release chunk if pointer is freed, save = true to write to disk;
+    //     force = false (will not delete if other chunk uses it); borrow = true
+    //                   save  force  borrow
+    release_chunk_(index, true, false, true);
+  }
+  
 };
 
 #endif

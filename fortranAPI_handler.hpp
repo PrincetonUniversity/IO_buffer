@@ -144,6 +144,14 @@ public:
 		  const FINT& threadnum){
     getfilep(unit)->get(pos, N, values, threadnum);
   };
+    
+  void get_c_pointer( const FINT& unit, 
+		      const FINT& block, 
+		      T** values,
+		      const FINT& threadnum,
+		      FINT& blocksize);
+
+  void free_c_pointer( const FINT& unit, const FINT& block);
 
   void closefile( const FINT& unit);
 

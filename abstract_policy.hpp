@@ -45,6 +45,11 @@ struct node{
 
   enum status_type {modified, empty, loaded, stored};
   
+  // counts how many times this node is borrowed out (i.e. a row pointer
+  //  has been asked for by getpointer). if borrowed > 0, will not free memory
+  //  since thing is in use
+  int borrowed;
+  
   status_type status;
     
   chunk data;
@@ -52,6 +57,7 @@ struct node{
   std::mutex mut_ex;
 
   node():
+    borrowed(0),
     status(empty),
     data()    
   {};

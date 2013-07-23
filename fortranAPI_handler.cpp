@@ -121,6 +121,23 @@ void fortranapi<T>::openfile(const FINT& pool_id,
 #endif
 }
 
+template <class T>
+void fortranapi<T>::get_c_pointer( const FINT& unit, 
+				   const FINT& block, 
+				   T** values,
+				   const FINT& threadnum,
+				   FINT& blocksize){
+    size_t bs;
+    getfilep(unit)->get_pointer(block, values, threadnum, bs);
+    blocksize = bs;
+}
+
+template <class T>
+void fortranapi<T>::free_c_pointer( const FINT& unit, 
+				    const FINT& block){    
+    getfilep(unit)->free_pointer(block);
+}
+
 template <class T> 
 void fortranapi<T>::closefile( const FINT& unit){
   getfilep(unit)->get_policy()->remove_mapper(unit);
