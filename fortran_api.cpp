@@ -236,12 +236,16 @@ void for_double_buf_get_c_pointer( const FINT& unit,
     std::cout << "Called for_double_buf_get_c_pointer\n";
   std::cout  << "unit     =" << unit << '\n'
 	     << "block      =" << block << '\n'
-	     << "threadnum=" << threadnum << '\n'
-	     << "blocksize        =" << blocksize << '\n';
+	     << "threadnum=" << threadnum << '\n';
   std::cout.flush();
 #endif
 
   fortranapi<double>::get().get_c_pointer(unit, block, values, threadnum, blocksize);
+  
+#ifdef DEBUG_FORBUF
+  std::cout << "blocksize        =" << blocksize << '\n'
+  std::cout.flush();
+#endif
 }
 
 // get and free pointer memory

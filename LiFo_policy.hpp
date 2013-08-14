@@ -75,8 +75,12 @@ private:
       return chunk(abstract_policy<T>::chunk_size(),0);
     }else{
 
-      if (threadnum >= abstract_policy<T>::nthread())
-	throw E_Policy_error("LiFo_policy:find_memory: Threadnum invalid!");
+      if (threadnum >= abstract_policy<T>::nthread()){
+          std::cout << "Thread number " << threadnum << " is larger than " 
+                    << abstract_policy<T>::nthread() << '\n';
+          std::cout.flush();
+          throw E_Policy_error("LiFo_policy:find_memory: Threadnum invalid!");
+      }
 
       typename policy_list<T>::chunkindex ci(threadswap[threadnum*2]);
       threadswap[threadnum*2] = threadswap[threadnum*2+1];
