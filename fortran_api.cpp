@@ -227,7 +227,7 @@ void for_double_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N
 
 // get and free pointer memory
 extern "C"
-void for_double_buf_get_c_pointer_( const FINT& unit, 
+void for_double_buf_get_c_pointer( const FINT& unit, 
 				   const FINT& block, 
 				   double** values, 
 				   const FINT& threadnum, 
@@ -246,7 +246,7 @@ void for_double_buf_get_c_pointer_( const FINT& unit,
 
 // get and free pointer memory
 extern "C"
-void for_double_buf_free_c_pointer_( const FINT& unit, 
+void for_double_buf_free_c_pointer( const FINT& unit, 
 				   const FINT& block){
 #ifdef DEBUG_FORBUF
     std::cout << "Called for_double_buf_free_c_pointer\n";
@@ -583,7 +583,7 @@ void for_int_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N, F
 
 // get and free pointer memory
 extern "C"
-void for_int_buf_get_c_pointer_( const FINT& unit, 
+void for_int_buf_get_c_pointer( const FINT& unit, 
 				const FINT& block, 
 				FINT** values, 
 				const FINT& threadnum, 
@@ -602,7 +602,7 @@ void for_int_buf_get_c_pointer_( const FINT& unit,
 
 // get and free pointer memory
 extern "C"
-void for_int_buf_free_c_pointer_( const FINT& unit, 
+void for_int_buf_free_c_pointer( const FINT& unit, 
 				 const FINT& block){
 #ifdef DEBUG_FORBUF
     std::cout << "Called for_int_buf_free_c_pointer\n";
