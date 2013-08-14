@@ -73,9 +73,9 @@ void for_double_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N
 
 /* direct access to pointer to block, will be kept in memory until freed or buffer closed*/
 extern "C"
-void for_double_buf_get_c_pointer( const FINT& unit, const FINT& block, double** values, const FINT& threadnum, FINT& blocksize);
+void for_double_buf_get_c_pointer_( const FINT& unit, const FINT& block, double** values, const FINT& threadnum, FINT& blocksize);
 extern "C"
-void for_double_buf_free_c_pointer( const FINT& unit, const FINT& block);
+void for_double_buf_free_c_pointer_( const FINT& unit, const FINT& block);
 
 // close file or entire pool, save content to disk before closing
 extern "C"
@@ -175,9 +175,9 @@ void for_int_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N, F
 
 /* direct access to pointer to block, will be kept in memory until freed or buffer closed*/
 extern "C"
-void for_int_buf_get_c_pointer( const FINT& unit, const FINT& block, FINT** values, const FINT& threadnum, FINT& blocksize);
+void for_int_buf_get_c_pointer_( const FINT& unit, const FINT& block, FINT** values, const FINT& threadnum, FINT& blocksize);
 extern "C"
-void for_int_buf_free_c_pointer( const FINT& unit, const FINT& block);
+void for_int_buf_free_c_pointer_( const FINT& unit, const FINT& block);
 
 // close file or entire pool, save content to disk before closing
 extern "C"
