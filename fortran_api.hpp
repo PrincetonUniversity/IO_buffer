@@ -71,7 +71,9 @@ void for_double_buf_readblock_( const FINT& unit, const FINT& block, double* val
 extern "C"
 void for_double_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N, double* values, const FINT& threadnum);
 
-/* direct access to pointer to block, will be kept in memory until freed or buffer closed*/
+/* INTERNAL routine - DO NOT CALL DIRECTLY. Use the FORTRAN 
+ subroutines for_double_buf_get_pointer and for_double_buf_free_pointer
+provided in IOBuffer.F90 to obtain direct access to pointer to block, will be kept in memory until freed or buffer closed*/
 extern "C"
 void for_double_buf_get_c_pointer( const FINT& unit, const FINT& block, double** values, const FINT& threadnum, FINT& blocksize);
 extern "C"
@@ -173,7 +175,9 @@ void for_int_buf_readblock_( const FINT& unit, const FINT& block, FINT* values, 
 extern "C"
 void for_int_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N, FINT* values, const FINT& threadnum);
 
-/* direct access to pointer to block, will be kept in memory until freed or buffer closed*/
+/* INTERNAL routine - DO NOT CALL DIRECTLY. Use the FORTRAN 
+ subroutines for_double_buf_get_pointer and for_double_buf_free_pointer
+provided in IOBuffer.F90 to obtain direct access to pointer to block, will be kept in memory until freed or buffer closed*/
 extern "C"
 void for_int_buf_get_c_pointer( const FINT& unit, const FINT& block, FINT** values, const FINT& threadnum, FINT& blocksize);
 extern "C"

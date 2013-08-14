@@ -65,6 +65,9 @@ module IOBuffer
 
   contains
 
+    ! Routine to call for direct memory pointer access, memory 
+    ! managed by IOBuffer library 
+
      subroutine for_double_buf_get_pointer( unit, block, values, threadnum )
 
        implicit none
@@ -98,6 +101,9 @@ module IOBuffer
        
      end subroutine for_double_buf_get_pointer
 
+
+    ! Routine to call for direct memory pointer access, memory 
+    ! managed by IOBuffer library 
 
      subroutine for_int_buf_get_pointer( unit, block, values, threadnum )
 
