@@ -20,7 +20,7 @@ module IOBuffer
        integer*8, intent(in) :: maxmem
      end subroutine for_double_buf_changebuffersize
 
-     subroutine for_double_buf_free_pointer( unit, block, threadnum) &
+     subroutine for_double_buf_return_pointer( unit, block, threadnum) &
           & bind (c,name='for_double_buf_free_c_pointer')
        integer*8, intent(in) :: unit
        integer*8, intent(in) :: block
@@ -49,7 +49,7 @@ module IOBuffer
        integer*8, intent(in) :: maxmem
      end subroutine for_int_buf_changebuffersize
 
-     subroutine for_int_buf_free_pointer( unit, block, threadnum) &
+     subroutine for_int_buf_return_pointer( unit, block, threadnum) &
           & bind (c,name='for_int_buf_free_c_pointer')
        integer*8, intent(in) :: unit
        integer*8, intent(in) :: block
@@ -68,7 +68,7 @@ module IOBuffer
     ! Routine to call for direct memory pointer access, memory 
     ! managed by IOBuffer library 
 
-     subroutine for_double_buf_get_pointer( unit, block, values, threadnum )
+     subroutine for_double_buf_get_constpointer( unit, block, values, threadnum )
 
        implicit none
 

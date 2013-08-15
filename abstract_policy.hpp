@@ -42,8 +42,12 @@ struct node{
 
   typedef std::vector<T> chunk;
   typedef std::shared_ptr<node> p_node;
-
+  
   enum status_type {modified, empty, loaded, stored};
+  
+  // a node is undead if it should already have been freed, but wasn't because
+  // node was in use
+  bool undead;
   
   // counts how many times this node is borrowed out (i.e. a row pointer
   //  has been asked for by getpointer). if borrowed > 0, will not free memory
@@ -57,6 +61,7 @@ struct node{
   std::mutex mut_ex;
 
   node():
+    undead(false),
     borrowed(0),
     status(empty),
     data()    

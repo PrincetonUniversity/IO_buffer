@@ -5,7 +5,7 @@
 #include <iostream>
 
 extern "C" 
-void for_double_buf_construct_( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id ){
+void for_double_buf_construct( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id ){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_construct\n";
@@ -240,7 +240,7 @@ void for_double_buf_get_c_pointer( const FINT& unit,
   std::cout.flush();
 #endif
 
-  fortranapi<double>::get().get_c_pointer(unit, block, values, threadnum - 1, blocksize);
+  fortranapi<double>::get().get_c_pointer(unit, block - 1, values, threadnum - 1, blocksize);
   
 #ifdef DEBUG_FORBUF
   std::cout << "blocksize        =" << blocksize << '\n';
@@ -259,7 +259,7 @@ void for_double_buf_free_c_pointer( const FINT& unit,
   std::cout.flush();
 #endif
 
-  fortranapi<double>::get().free_c_pointer(unit, block);
+  fortranapi<double>::get().free_c_pointer(unit, block - 1);
 }
 
 // close file, flush before closing
@@ -379,7 +379,7 @@ void for_double_buf_flushpool_( const FINT& pool_id ){
 
 
 extern "C" 
-void for_int_buf_construct_( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id ){
+void for_int_buf_construct( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id ){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_construct\n";
@@ -601,7 +601,7 @@ void for_int_buf_get_c_pointer( const FINT& unit,
   std::cout.flush();
 #endif
 
-  fortranapi<FINT>::get().get_c_pointer(unit, block, values, threadnum, blocksize);
+  fortranapi<FINT>::get().get_c_pointer(unit, block - 1, values, threadnum, blocksize);
 }
 
 // get and free pointer memory
@@ -615,7 +615,7 @@ void for_int_buf_free_c_pointer( const FINT& unit,
   std::cout.flush();
 #endif
 
-  fortranapi<FINT>::get().free_c_pointer(unit, block);
+  fortranapi<FINT>::get().free_c_pointer(unit, block - 1);
 }
 
 // close file, flush before closing

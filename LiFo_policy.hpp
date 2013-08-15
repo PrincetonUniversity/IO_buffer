@@ -76,7 +76,7 @@ private:
     }else{
 
       if (threadnum >= abstract_policy<T>::nthread()){
-          std::cout << "Thread number " << threadnum << " is larger than " 
+          std::cout << "Thread number " << threadnum << " is not smaller than " 
                     << abstract_policy<T>::nthread() << '\n';
           std::cout.flush();
           throw E_Policy_error("LiFo_policy:find_memory: Threadnum invalid!");

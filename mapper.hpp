@@ -252,8 +252,11 @@ private:
 		     bool save,
 		     bool force){
 
-    if (nodes[chunk_index].borrowed)
+    node<T>& cn(nodes[chunk_index]);
+    if (cn.borrowed){        
+        cn.undead = true;
         return false;
+    }
         
     bool success(true);
 
@@ -298,9 +301,8 @@ private:
     }else{
       ++stat.n_not_modified;
 #endif
+      cn.status=node<T>::stored;
     }
-
-    cn.status=node<T>::stored;
   };
 
   void ensure_all_chunks_stored_(){
@@ -313,8 +315,8 @@ private:
 
   chunk release_chunk_(size_t chunk_index, // index of chunk to release
 		       bool save, // save to disk ?
-		       bool force, // force delete also if chunk used elsewhere
-                       bool borrowed = false){ // was borrowed
+		       bool force) // force delete also if chunk used elsewhere
+  { 
 
     if (chunk_index >= nodes.size()){
       std::cerr << "ERROR: releasing chunk "<<chunk_index
@@ -332,11 +334,7 @@ private:
     std::lock_guard< decltype(cn.mut_ex) > lg(cn.mut_ex);
 
     // this thread now has exclusive access to this node
-    
-    // if borrowed, decrease use count
-    if (borrowed)
-        --cn.borrowed;    
-
+        
     // ask whether chunk can be freed
     if ( ! deprecate_use(chunk_index, save, force) ){
       // chunk is in use: create new chunk to return to policy
@@ -397,8 +395,7 @@ private:
   void prepare_node( size_t index, 
 		     tcurrentinfo& ci, 
 		     size_t threadnum,
-		     const bool modify,
-                     const bool borrow = false){
+		     const bool modify){
 
     // if too small nodes, then we have a problem: need to
     // resize without breaking other threads 
@@ -448,10 +445,8 @@ private:
       cn.status=node<T>::loaded;
       
     }
-
-    // if this is a borrow request, increase the borrow count of the node
-    if (borrow) 
-        ++cn.borrowed;	
+    // even if node was undead, now it got resurrected, because needed otherwise again
+    cn.undead = false; 
 
     // lock mutex again, update information
     ci.index = index;
@@ -695,11 +690,26 @@ else{
 #endif    
 
     tcurrentinfo& ci(currentinfo[threadnum]);
-    
-    prepare_node(index, ci, threadnum, false, true);
 
+    if (index != ci.index){
+      prepare_node(index, ci, threadnum, false);
+    }
+    
+    // increase the borrow count of the node
+    while (nodereleasebarrier.exchange(true)){};
+    ++nodereleasecount;
+    nodereleasebarrier = false;
+
+    node<T>& cn(nodes[index]);
+
+    // lock access to the chunk node
+    std::lock_guard< decltype(cn.mut_ex) > lg(cn.mut_ex);
+
+    ++cn.borrowed;	
+    
     (*t) = &(*ci.cchunk);    
     
+    --nodereleasecount;
   };
 
   void freepointer_(size_t index){
@@ -710,9 +720,37 @@ else{
     // release chunk if pointer is freed, save = true to write to disk;
     //     force = false (will not delete if other chunk uses it); borrow = true
     //                   save  force  borrow
-    release_chunk_(index, true, false, true);
+    while (nodereleasebarrier.exchange(true)){};
+    ++nodereleasecount;
+    nodereleasebarrier = false;
+
+    node<T>& cn(nodes[index]);
+
+    // lock access to the chunk node
+    std::lock_guard< decltype(cn.mut_ex) > lg(cn.mut_ex);
+
+    // this thread now has exclusive access to this node
+        
+    --cn.borrowed;
+    
+    if (!cn.borrowed){
+
+        if (cn.undead){
+            // ask whether chunk can be freed
+            if ( deprecate_use(index, true, false) ){
+              
+                store_chunk_(cn, index, true);
+
+                chunk c;
+                c.swap(cn.data);
+                // the lock_guard frees the mut_ex
+
+            }// else    
+            //chunk is in use and will be freed by currentinfo-change               
+        }
+    }
+    --nodereleasecount;
   }
-  
 };
 
 #endif

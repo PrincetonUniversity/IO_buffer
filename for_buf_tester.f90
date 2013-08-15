@@ -2,11 +2,15 @@ program for_double_buf_tester
 
 use omp_lib
 
+use IObuffer
+use ifport
+
 implicit none
 
 real(kind=8),dimension(:,:),allocatable::testmat
 integer::numThreadsWrite
 integer::numThreadsRead
+
 integer::threadID
 integer::dim1,dim2
 integer::blockSize
@@ -14,11 +18,18 @@ integer::numBlocks
 integer::i,j,c,iostat
 integer::for_double_buf_poolID
 real(kind=8)::tmp
-integer(kind=4),parameter::seed=86456
+
+
+
+integer(kind=4),parameter::myseed=86456
 integer(kind=4),parameter::unitInp=200
 integer(kind=4),parameter::unitFile=220
 
-integer(kind=4) poolintid
+integer poolintid
+
+integer(kind=4) tmpfour
+
+real(kind=8), pointer :: blockdata(:)
 
 ! setup the calculation
 open(unit=unitInp,status="old",action="read",file="forbuf.inp")
@@ -31,15 +42,17 @@ read(unitInp,*) numBlocks
 close(unit=unitInp) !please do not close file, causes segfault because POTATOE!
 
 write(*,*) "Configuration for this test:"
+
 write(*,*) "Threads for writing ",numThreadsWrite
 write(*,*) "Threads for reading ",numThreadsRead
+
 write(*,*) "Dimesions of matrix ",dim1,dim2
 write(*,*) "Buffer blocksize ",blockSize
 write(*,*) "Buffer number of blocks ",numBlocks
 flush(6)
 
 ! initialize our matrix with random numbers
-call srand(seed)
+call srand(myseed)
 allocate(testmat(dim1,dim2),stat=iostat)
 if(iostat .ne. 0) then
    write(*,*) "ERROR: IOStatus in allocate not zero. ",iostat
@@ -60,8 +73,10 @@ write(*,*) "Maximum concurrency ",max(numThreadsRead,numThreadsWrite)
 flush(6)
 call for_double_buf_openfile(for_double_buf_poolID, unitFile, 'forbuf.dat',10)
 
+
 ! write them out
-call omp_set_num_threads(numThreadsWrite)
+tmpfour = numThreadsWrite
+call omp_set_num_threads(tmpfour)
 
 !$omp parallel &
 !$omp default(none) &
@@ -90,7 +105,8 @@ write(*,*) "Writing sweep complete. Reading back in..."
 flush(6)
 
 ! read in and compare to the stored data
-call omp_set_num_threads(numThreadsRead)
+tmpfour = numThreadsRead
+call omp_set_num_threads(tmpfour)
 
 !$omp parallel &
 !$omp default(none) &
