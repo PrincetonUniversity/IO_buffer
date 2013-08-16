@@ -15,7 +15,7 @@
   return integer pool_id as handle to the constructed buffer
 */
 extern "C" 
-void for_double_buf_construct( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id );
+void for_double_buf_construct_( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id );
 
 /* change the buffer size to maxmem,
    this does not force the buffer to immediately shrink (or expand)
@@ -119,7 +119,7 @@ void for_double_buf_syncpool_( const FINT& pool_id);
   return integer pool_id as handle to the constructed buffer
 */
 extern "C" 
-void for_int_buf_construct( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id );
+void for_int_buf_construct_( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id );
 
 /* change the buffer size to maxmem,
    this does not force the buffer to immediately shrink (or expand)

@@ -25,7 +25,7 @@ module IOBuffer
        integer*8, intent(in) :: unit
        integer*8, intent(in) :: block
        integer*8, intent(in) :: threadnum
-     end subroutine for_double_buf_free_pointer
+     end subroutine for_double_buf_return_pointer
 
      subroutine for_double_buf_syncpool( pool_id ) &
           & bind (c,name='for_double_buf_syncpool')
@@ -54,7 +54,7 @@ module IOBuffer
        integer*8, intent(in) :: unit
        integer*8, intent(in) :: block
        integer*8, intent(in) :: threadnum
-     end subroutine for_int_buf_free_pointer
+     end subroutine for_int_buf_return_pointer
 
      subroutine for_int_buf_syncpool( pool_id ) &
           & bind (c,name='for_int_buf_syncpool')
@@ -99,13 +99,13 @@ module IOBuffer
 
        call c_f_pointer(cptr, values, [blocksize])
        
-     end subroutine for_double_buf_get_pointer
+     end subroutine for_double_buf_get_constpointer
 
 
     ! Routine to call for direct memory pointer access, memory 
     ! managed by IOBuffer library 
 
-     subroutine for_int_buf_get_pointer( unit, block, values, threadnum )
+     subroutine for_int_buf_get_constpointer( unit, block, values, threadnum )
 
        implicit none
 
@@ -136,6 +136,6 @@ module IOBuffer
 
        call c_f_pointer(cptr, values, [blocksize])
        
-     end subroutine for_int_buf_get_pointer
+     end subroutine for_int_buf_get_constpointer
 
 end module IOBuffer

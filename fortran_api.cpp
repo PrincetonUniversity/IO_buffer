@@ -5,7 +5,7 @@
 #include <iostream>
 
 extern "C" 
-void for_double_buf_construct( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id ){
+void for_double_buf_construct_( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id ){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_construct\n";
@@ -379,7 +379,7 @@ void for_double_buf_flushpool_( const FINT& pool_id ){
 
 
 extern "C" 
-void for_int_buf_construct( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id ){
+void for_int_buf_construct_( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id ){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_construct\n";
