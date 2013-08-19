@@ -31,6 +31,8 @@ struct statistics{
   size_t n_get_pointer;
   size_t n_free_pointer;
   size_t n_blanked;
+  size_t n_undead;
+  size_t n_free_delete;
 
   statistics(): n_read_buff(0),
 		n_read_file(0),
@@ -42,7 +44,9 @@ struct statistics{
 		n_not_modified(0),
 		n_get_pointer(0),
 		n_free_pointer(0),
-		n_blanked(0)
+		n_blanked(0),
+                n_undead(0),
+                n_free_delete(0)
   {};
 
   void dump(std::string filename){
@@ -58,6 +62,8 @@ struct statistics{
     ofs << n_free_pointer << " requests to free raw pointer\n";
     ofs << n_not_modified << " writes avoided as chunk not modified in RAM\n";
     ofs << n_blanked << " reads saved because chunk not on file\n";
+    ofs << n_undead << " attempts to free a burrowed node\n";
+    ofs << n_free_delete << " times that free_pointer really frees the memory\n";
   }
 };
 
@@ -255,6 +261,9 @@ private:
     node<T>& cn(nodes[chunk_index]);
     if (cn.borrowed){        
         cn.undead = true;
+#ifdef COLLECT_STATISTICS
+        ++stat.n_undead;
+#endif
         return false;
     }
         
@@ -427,6 +436,7 @@ private:
 
       // get chunk of memory
       cn.data = policy.lock()->get_memory(my_mapperid, index, threadnum);
+      cn.undead = false;
 
       if (cn.status == node<T>::stored){
 	// load it from disk if it is on disk
@@ -445,8 +455,6 @@ private:
       cn.status=node<T>::loaded;
       
     }
-    // even if node was undead, now it got resurrected, because needed otherwise again
-    cn.undead = false; 
 
     // lock mutex again, update information
     ci.index = index;
@@ -715,7 +723,7 @@ else{
   void freepointer_(size_t index){
 
 #ifdef COLLECT_STATISTICS
-    ++stat.n_get_pointer;
+    ++stat.n_free_pointer;
 #endif
     // release chunk if pointer is freed, save = true to write to disk;
     //     force = false (will not delete if other chunk uses it); borrow = true
@@ -743,6 +751,9 @@ else{
 
                 chunk c;
                 c.swap(cn.data);
+#ifdef COLLECT_STATISTICS
+                ++stat.n_free_delete;
+#endif
                 // the lock_guard frees the mut_ex
 
             }// else    
