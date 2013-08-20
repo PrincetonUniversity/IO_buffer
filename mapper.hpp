@@ -310,8 +310,8 @@ private:
     }else{
       ++stat.n_not_modified;
 #endif
-      cn.status=node<T>::stored;
     }
+    cn.status=node<T>::stored;
   };
 
   void ensure_all_chunks_stored_(){
