@@ -1,7 +1,7 @@
-# Note that CPP isn't defined here
+# Note that CXX isn't defined here
 # Whatever program is compiling this library needs to supply it!
  
-CPP = g++
+# CXX = g++
 
 SOURCES = fortran_api.cpp fortranAPI_handler.cpp LiFo_policy.cpp	\
 mapper.cpp buffer.cpp 
@@ -25,20 +25,20 @@ LFLAGS= -lpthread
 all:	libforbuf.a binary_to_ascii
 
 binary_to_ascii:	binary_to_ascii.o
-	$(CPP) binary_to_ascii.o -o binary_to_ascii
+	$(CXX) binary_to_ascii.o -o binary_to_ascii
 
 libforbuf.a:	$(OBJECTS)
 	ar vr $@ $?
 	ranlib $@
 
 test:	$(OBJECTS) testit.o for_buf_tester
-	$(CPP) testit.o $(OBJECTS) -o test $(LFLAGS)
+	$(CXX) testit.o $(OBJECTS) -o test $(LFLAGS)
 
 for_buf_tester:	libforbuf.a for_buf_tester.f90
 	./compileTest.sh
 
 .cpp.o:
-	$(CPP) -c $(CFLAGS) $< -o $@
+	$(CXX) -c $(CFLAGS) $< -o $@
 
 clean:	
 	rm *.o *.a
