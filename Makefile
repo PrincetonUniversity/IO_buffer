@@ -17,7 +17,7 @@ CFLAGS=  -D_REENTRANT -std=c++0x -O3 -Wall -Wextra -g -pedantic
 LFLAGS= -lpthread
 
 # uncomment to make code faster but use less error-checking
-#CFLAGS += -D FORBUF_FAST
+CFLAGS += -D FORBUF_FAST
 
 # uncomment to have fortran code write DEBUG info
 #CFLAGS += -D DEBUG_FORBUF
