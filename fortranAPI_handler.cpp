@@ -5,9 +5,69 @@
 
 #include <mutex>
 
+void calcrc(unsigned short& crc, unsigned char *ptr, size_t count)
+{
+    unsigned char i;
+    {
+        crc = crc ^ (unsigned short)*ptr++ << 8;
+        i = 8;
+        do
+        {
+            if (crc & 0x8000)
+                crc = crc << 1 ^ 0x1021;
+            else
+                crc = crc << 1;
+        } while(--i);
+    } while (--count > 0);
+}
+
 template <>
 std::string fortranapi<FINT>::my_name() const {
   return "FINT";
+}
+
+template <class T>
+struct T_checker{
+    size_t index;
+    T*  pp;
+};
+
+template <class T>
+unsigned short fortranapi<T>::get_checksum_pools() const{
+    unsigned short crc(0);
+
+    T_checker<abstract_policy<T> > checker;
+    checker.index = 0;
+
+    for (auto p = pools.begin(); p != pools.end(); ++p){
+	if (*p){
+	    checker.pp = &(*(*p));
+	    size_t count = (sizeof(checker)) / (sizeof(unsigned short));
+	    calcrc(crc, reinterpret_cast<unsigned char *>(&checker), count);
+	}
+	++checker.index;
+    }
+
+    return crc;
+}
+
+template <class T>
+unsigned short fortranapi<T>::get_checksum_files() const{
+    unsigned short crc(0);
+
+    T_checker<mapper<T> > checker;
+    checker.index = 0;
+
+    for (auto p = files.begin(); p != files.end(); ++p){
+	if (*p){
+	    checker.pp = *p;
+	    size_t count = (sizeof(checker)) / (sizeof(unsigned short));
+	    calcrc(crc, reinterpret_cast<unsigned char *>(&checker), count);
+	}
+	++checker.index;
+    }
+
+    return crc;
 }
 
 template <>
@@ -18,13 +78,22 @@ std::string fortranapi<double>::my_name() const {
 template <class T> 
 typename fortranapi<T>::p_abstract_policy fortranapi<T>::getpolicy( FINT pool_id ){
 
-  if (static_cast<size_t>(pool_id) >= pools.size())
+#ifndef FORBUF_FAST
+  check_for_corruption();
+#endif
+
+  if (static_cast<size_t>(pool_id) >= pools.size()){
+    std::cerr << "Pool number "<< pool_id<< " too big, not smaller than " 
+              << pools.size()<< "\n";
     throw E_invalid_pool_id(pool_id);
+  }
 
   p_abstract_policy pp( pools[pool_id]);
 
-  if (!pp)
+  if (!pp){
+    std::cerr << "Pool number " << pool_id << " not associated\n";
     throw E_invalid_pool_id(pool_id);
+  }
 
   return pp;
 }
@@ -45,10 +114,33 @@ void outputfiles(){
     fortranapi<double>::get().output_all_known();
 }
 
+template <class T>
+void fortranapi<T>::check_for_corruption() const{
+    unsigned short new_crc(get_checksum_files());
+
+    if (new_crc != crc_files){
+	std::cerr << "INVALID checksum for files!!" << '\n';
+	throw E_checksum_error();
+    }
+
+    new_crc = get_checksum_pools();
+    if (new_crc != crc_pools){
+	std::cerr << "INVALID checksum for pools!!" << '\n';
+	throw E_checksum_error();
+    }
+}
+
+template <class T>
+void fortranapi<T>::update_checksums(){
+    crc_files = get_checksum_files();
+    crc_pools = get_checksum_pools();
+}
+
 #ifndef FORBUF_FAST
 template <class T> 
 typename fortranapi<T>::pw_mapper fortranapi<T>::getfilep( int index){
   pw_mapper p(files[index]);
+  check_for_corruption();
   if (!p) {
 
     std::cout << "Error: Unknown file id " << index << '\n';
@@ -88,6 +180,10 @@ FINT fortranapi<T>::construct(const FINT& maxmem,
     throw E_unknown_storagepolicy(storagepolicy);
   }
 
+#ifndef FORBUF_FAST
+  update_checksums();
+#endif
+
   return index;
 }
 
@@ -115,6 +211,9 @@ void fortranapi<T>::openfile(const FINT& pool_id,
 				   getpolicy(pool_id),
 				   reopen
 				   ).get();
+#ifndef FORBUF_FAST
+  update_checksums();
+#endif
 #ifdef DEBUG_FORBUF 
   std::cerr << "now: ";
   outputfiles();
@@ -146,6 +245,9 @@ void fortranapi<T>::closefile( const FINT& unit){
   std::cerr.flush();
 #endif
   files[unit] = NULL;
+#ifndef FORBUF_FAST
+  update_checksums();
+#endif
 }
 
 template <class T> 
@@ -157,7 +259,9 @@ void fortranapi<T>::removefile( const FINT& unit){
   getfilep(unit)->get_policy()->remove_mapper(unit, false);
   files[unit] = NULL; // remove shared_ptr, 
   // not getfilep(unit).reset(), that would just reset the temporary 
-
+#ifndef FORBUF_FAST
+  update_checksums();
+#endif
   std::cout << "Execute " << oss.str() << '\n';
   if (std::system(oss.str().c_str()) == -1)
     std::cout << "Error on command " << oss.str() << '\n';
@@ -202,6 +306,11 @@ void fortranapi<T>::closepool( const FINT& poolid){
     }
   std::cerr << "reseting pool\n"; std::cerr.flush();
   pools[poolid].reset();
+
+#ifndef FORBUF_FAST
+  update_checksums();
+#endif
+
   std::cerr << "pool reset\n"; std::cerr.flush();
 }
 
@@ -223,6 +332,10 @@ void fortranapi<T>::removepool( const FINT& poolid){
       }
     }
   pools[poolid].reset();
+#ifndef FORBUF_FAST
+  update_checksums();
+#endif
+
 #ifdef DEBUG_FORBUF
   std::cout << "Execute " << oss.str() << '\n';
 #endif

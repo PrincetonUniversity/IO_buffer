@@ -59,6 +59,17 @@ public:
   }
 };
 
+class E_checksum_error: public std::exception{
+public:
+  E_checksum_error(){};
+  
+  ~E_checksum_error() throw() {};
+
+  const char* what() const throw(){
+    return "Checksum error!";
+  }
+};
+
 class filestruct;
 
 template <class T>
@@ -172,6 +183,16 @@ public:
   void output_all_known();
 
 private:
+
+  unsigned short crc_files;
+  unsigned short crc_pools;
+ 
+  unsigned short get_checksum_files() const;
+  unsigned short get_checksum_pools() const;
+
+  void update_checksums();
+
+  void check_for_corruption() const;
 
   std::string my_name() const;
 
