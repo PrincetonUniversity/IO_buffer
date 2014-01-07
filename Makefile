@@ -1,7 +1,7 @@
-# Note that CXX isn't defined here
-# Whatever program is compiling this library needs to supply it!
- 
-# CXX = g++
+# Requires two defined variables to be passed to the makefile
+# CXX = ...
+# target = opt/debug   (note that we don't actually check for anything other than opt)
+
 
 SOURCES = fortran_api.cpp fortranAPI_handler.cpp LiFo_policy.cpp	\
 mapper.cpp buffer.cpp 
@@ -11,13 +11,14 @@ TEMPLATES = buffer.tpp
 
 OBJECTS = $(SOURCES:%.cpp=%.o)
 
+ifeq ($(target), opt)
+    #CFLAGS= -D_REENTRANT -std=c++11 -Wall -Wextra -g -pedantic
+    CFLAGS=  -D_REENTRANT -std=c++0x -O3 -Wall -Wextra -g -pedantic -D FORBUF_FAST
+else
+    CFLAGS = -D_REENTRANT -std=c++0x -O0 -ggdb -Wall -Wextra -g -pedantic 
+endif
 
-#CFLAGS= -D_REENTRANT -std=c++11 -Wall -Wextra -g -pedantic
-CFLAGS=  -D_REENTRANT -std=c++0x -O3 -Wall -Wextra -g -pedantic
 LFLAGS= -lpthread
-
-# uncomment to make code faster but use less error-checking
-CFLAGS += -D FORBUF_FAST
 
 # uncomment to have fortran code write DEBUG info
 #CFLAGS += -D DEBUG_FORBUF
