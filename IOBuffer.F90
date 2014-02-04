@@ -6,59 +6,67 @@ module IOBuffer
      subroutine for_double_buf_construct(maxmem, blocksize, &
           & storagepolicy, nthread, pool_id) &
           & bind(c,name='for_double_buf_construct')
-       integer*8, intent(in) :: maxmem
-       integer*8, intent(in) :: blocksize
-       integer*8, intent(in) :: storagepolicy
-       integer*8, intent(in) :: nthread
+       use iso_c_binding
+       integer(kind=C_INT64_T), intent(in) :: maxmem
+       integer(kind=C_INT64_T), intent(in) :: blocksize
+       integer(kind=C_INT64_T), intent(in) :: storagepolicy
+       integer(kind=C_INT64_T), intent(in) :: nthread
 
-       integer*8, intent(out) :: pool_id       
+       integer(kind=C_INT64_T), intent(out) :: pool_id       
      end subroutine for_double_buf_construct
 
      subroutine for_double_buf_changebuffersize( pool_id, maxmem) &
           & bind (c,name='for_double_buf_changebuffersize')
-       integer*8, intent(in) :: pool_id
-       integer*8, intent(in) :: maxmem
+       use iso_c_binding
+       integer(kind=C_INT64_T), intent(in) :: pool_id
+       integer(kind=C_INT64_T), intent(in) :: maxmem
      end subroutine for_double_buf_changebuffersize
 
      subroutine for_double_buf_return_pointer( unit, block, threadnum) &
           & bind (c,name='for_double_buf_free_c_pointer')
-       integer*8, intent(in) :: unit
-       integer*8, intent(in) :: block
-       integer*8, intent(in) :: threadnum
+       use iso_c_binding
+       integer(kind=C_INT64_T), intent(in) :: unit
+       integer(kind=C_INT64_T), intent(in) :: block
+       integer(kind=C_INT64_T), intent(in) :: threadnum
      end subroutine for_double_buf_return_pointer
 
      subroutine for_double_buf_syncpool( pool_id ) &
           & bind (c,name='for_double_buf_syncpool')
-       integer*8, intent(in):: pool_id
+       use iso_c_binding
+       integer(kind=C_INT64_T), intent(in):: pool_id
      end subroutine for_double_buf_syncpool
 
      subroutine for_int_buf_construct(maxmem, blocksize, &
           & storagepolicy, nthread, pool_id) &
           & bind(c,name='for_int_buf_construct')
-       integer*8, intent(in) :: maxmem
-       integer*8, intent(in) :: blocksize
-       integer*8, intent(in) :: storagepolicy
-       integer*8, intent(in) :: nthread
+       use iso_c_binding
+       integer(kind=C_INT64_T), intent(in) :: maxmem
+       integer(kind=C_INT64_T), intent(in) :: blocksize
+       integer(kind=C_INT64_T), intent(in) :: storagepolicy
+       integer(kind=C_INT64_T), intent(in) :: nthread
 
-       integer*8, intent(out) :: pool_id       
+       integer(kind=C_INT64_T), intent(out) :: pool_id       
      end subroutine for_int_buf_construct
 
      subroutine for_int_buf_changebuffersize( pool_id, maxmem) &
           & bind (c,name='for_int_buf_changebuffersize')
-       integer*8, intent(in) :: pool_id
-       integer*8, intent(in) :: maxmem
+       use iso_c_binding
+       integer(kind=C_INT64_T), intent(in) :: pool_id
+       integer(kind=C_INT64_T), intent(in) :: maxmem
      end subroutine for_int_buf_changebuffersize
 
      subroutine for_int_buf_return_pointer( unit, block, threadnum) &
           & bind (c,name='for_int_buf_free_c_pointer')
-       integer*8, intent(in) :: unit
-       integer*8, intent(in) :: block
-       integer*8, intent(in) :: threadnum
+       use iso_c_binding
+       integer(kind=C_INT64_T), intent(in) :: unit
+       integer(kind=C_INT64_T), intent(in) :: block
+       integer(kind=C_INT64_T), intent(in) :: threadnum
      end subroutine for_int_buf_return_pointer
 
      subroutine for_int_buf_syncpool( pool_id ) &
           & bind (c,name='for_int_buf_syncpool')
-       integer*8, intent(in):: pool_id
+       use iso_c_binding
+       integer(kind=C_INT64_T), intent(in):: pool_id
      end subroutine for_int_buf_syncpool
 
   end interface
@@ -75,23 +83,23 @@ module IOBuffer
        interface
           subroutine for_double_buf_get_c_pointer( unit, block, p, threadnum, blocksize) &
                & bind (c,name='for_double_buf_get_c_pointer')
-            import :: c_ptr
-            integer*8, intent(in) :: unit
-            integer*8, intent(in) :: block
+              use iso_c_binding
+            integer(kind=C_INT64_T), intent(in) :: unit
+            integer(kind=C_INT64_T), intent(in) :: block
             type(c_ptr), intent(out) :: p
-            integer*8, intent(in) :: threadnum
-            integer*8, intent(out) :: blocksize
+            integer(kind=C_INT64_T), intent(in) :: threadnum
+            integer(kind=C_INT64_T), intent(out) :: blocksize
           end subroutine for_double_buf_get_c_pointer
        end interface
 
-       integer*8, intent(in) :: unit
-       integer*8, intent(in) :: block
+       integer(kind=C_INT64_T), intent(in) :: unit
+       integer(kind=C_INT64_T), intent(in) :: block
 
-       real*8, intent(out), pointer:: values(:)
+       real(kind=C_DOUBLE), intent(out), pointer:: values(:)
 
-       integer*8, intent(in) :: threadnum
+       integer(kind=C_INT64_T), intent(in) :: threadnum
 
-       integer*8 blocksize
+       integer(kind=C_INT64_T) blocksize
        type(c_ptr) :: cptr
 
 
@@ -112,23 +120,23 @@ module IOBuffer
        interface
           subroutine for_int_buf_get_c_pointer( unit, block, p, threadnum, blocksize) &
                & bind (c,name='for_int_buf_get_c_pointer')
-            import :: c_ptr
-            integer*8, intent(in) :: unit
-            integer*8, intent(in) :: block
+                 use iso_c_binding
+            integer(kind=C_INT64_T), intent(in) :: unit
+            integer(kind=C_INT64_T), intent(in) :: block
             type(c_ptr), intent(out) :: p
-            integer*8, intent(in) :: threadnum
-            integer*8, intent(out) :: blocksize
+            integer(kind=C_INT64_T), intent(in) :: threadnum
+            integer(kind=C_INT64_T), intent(out) :: blocksize
           end subroutine for_int_buf_get_c_pointer
        end interface
 
-       integer*8, intent(in) :: unit
-       integer*8, intent(in) :: block
+       integer(kind=C_INT64_T), intent(in) :: unit
+       integer(kind=C_INT64_T), intent(in) :: block
 
-       integer*8, intent(out), pointer:: values(:)
+       integer(kind=C_INT64_T), intent(out), pointer:: values(:)
 
-       integer*8, intent(in) :: threadnum
+       integer(kind=C_INT64_T), intent(in) :: threadnum
 
-       integer*8 blocksize
+       integer(kind=C_INT64_T) blocksize
        type(c_ptr) :: cptr
 
 
