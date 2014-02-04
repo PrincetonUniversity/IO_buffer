@@ -7,6 +7,7 @@ module IOBuffer
           & storagepolicy, nthread, pool_id) &
           & bind(c,name='for_double_buf_construct')
        use iso_c_binding
+       implicit none
        integer(kind=C_INT64_T), intent(in) :: maxmem
        integer(kind=C_INT64_T), intent(in) :: blocksize
        integer(kind=C_INT64_T), intent(in) :: storagepolicy
@@ -18,6 +19,7 @@ module IOBuffer
      subroutine for_double_buf_changebuffersize( pool_id, maxmem) &
           & bind (c,name='for_double_buf_changebuffersize')
        use iso_c_binding
+       implicit none
        integer(kind=C_INT64_T), intent(in) :: pool_id
        integer(kind=C_INT64_T), intent(in) :: maxmem
      end subroutine for_double_buf_changebuffersize
@@ -25,6 +27,7 @@ module IOBuffer
      subroutine for_double_buf_return_pointer( unit, block, threadnum) &
           & bind (c,name='for_double_buf_free_c_pointer')
        use iso_c_binding
+       implicit none
        integer(kind=C_INT64_T), intent(in) :: unit
        integer(kind=C_INT64_T), intent(in) :: block
        integer(kind=C_INT64_T), intent(in) :: threadnum
@@ -33,6 +36,7 @@ module IOBuffer
      subroutine for_double_buf_syncpool( pool_id ) &
           & bind (c,name='for_double_buf_syncpool')
        use iso_c_binding
+       implicit none
        integer(kind=C_INT64_T), intent(in):: pool_id
      end subroutine for_double_buf_syncpool
 
@@ -40,17 +44,18 @@ module IOBuffer
           & storagepolicy, nthread, pool_id) &
           & bind(c,name='for_int_buf_construct')
        use iso_c_binding
+       implicit none
        integer(kind=C_INT64_T), intent(in) :: maxmem
        integer(kind=C_INT64_T), intent(in) :: blocksize
        integer(kind=C_INT64_T), intent(in) :: storagepolicy
        integer(kind=C_INT64_T), intent(in) :: nthread
-
        integer(kind=C_INT64_T), intent(out) :: pool_id       
      end subroutine for_int_buf_construct
 
      subroutine for_int_buf_changebuffersize( pool_id, maxmem) &
           & bind (c,name='for_int_buf_changebuffersize')
        use iso_c_binding
+       implicit none
        integer(kind=C_INT64_T), intent(in) :: pool_id
        integer(kind=C_INT64_T), intent(in) :: maxmem
      end subroutine for_int_buf_changebuffersize
@@ -58,6 +63,7 @@ module IOBuffer
      subroutine for_int_buf_return_pointer( unit, block, threadnum) &
           & bind (c,name='for_int_buf_free_c_pointer')
        use iso_c_binding
+       implicit none
        integer(kind=C_INT64_T), intent(in) :: unit
        integer(kind=C_INT64_T), intent(in) :: block
        integer(kind=C_INT64_T), intent(in) :: threadnum
@@ -66,6 +72,7 @@ module IOBuffer
      subroutine for_int_buf_syncpool( pool_id ) &
           & bind (c,name='for_int_buf_syncpool')
        use iso_c_binding
+       implicit none
        integer(kind=C_INT64_T), intent(in):: pool_id
      end subroutine for_int_buf_syncpool
 
@@ -84,6 +91,7 @@ module IOBuffer
           subroutine for_double_buf_get_c_pointer( unit, block, p, threadnum, blocksize) &
                & bind (c,name='for_double_buf_get_c_pointer')
               use iso_c_binding
+              implicit none
             integer(kind=C_INT64_T), intent(in) :: unit
             integer(kind=C_INT64_T), intent(in) :: block
             type(c_ptr), intent(out) :: p
@@ -121,6 +129,7 @@ module IOBuffer
           subroutine for_int_buf_get_c_pointer( unit, block, p, threadnum, blocksize) &
                & bind (c,name='for_int_buf_get_c_pointer')
                  use iso_c_binding
+                 implicit none
             integer(kind=C_INT64_T), intent(in) :: unit
             integer(kind=C_INT64_T), intent(in) :: block
             type(c_ptr), intent(out) :: p
