@@ -49,7 +49,7 @@ struct node{
   // node was in use
   bool undead;
   
-  // counts how many times this node is borrowed out (i.e. a row pointer
+  // counts how many times this node is borrowed out (i.e. a raw pointer
   //  has been asked for by getpointer). if borrowed > 0, will not free memory
   //  since thing is in use
   int borrowed;
@@ -71,9 +71,11 @@ struct node{
   node(const node&) = delete;
 
   node(node&& n) noexcept:
-  status(n.status)
+      undead(n.undead),
+      borrowed(n.borrowed),
+      status(n.status)
   {   
-    data.swap(n.data);
+      data.swap(n.data);
   }
 
 };
