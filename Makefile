@@ -42,7 +42,7 @@ for_buf_tester:	libforbuf.a for_buf_tester.f90
 	$(CXX) -c $(CFLAGS) $< -o $@
 
 clean:	
-	rm *.o *.a
+	rm *.o *.a > /dev/null 2>&1
 
 #depend:	$(PACKAGES_DEPEND) 
 #	@makedepend -fmake.dep  testit.cpp $(SOURCES) $(HEADERS) $(TEMPLATES)
