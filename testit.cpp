@@ -238,29 +238,29 @@ bool enter_number(size_t& n, const char* input, const char* message){
   return true;
 }
 
-int main(int argc, char** argv){
+// int main(int argc, char** argv){
 
-  test_policy();
+//   test_policy();
 
-  size_t Nchunks(10);
-  size_t Nthreads(0);
+//   size_t Nchunks(10);
+//   size_t Nthreads(0);
 	      
-  if (argc >= 2){
-    if (!enter_number(Nchunks,argv[1],"MB will be processed"))
-      return 0;
-  }
-  if (argc >= 3){
-    if (!enter_number(Nthreads,argv[2],"Threads will be launched"))
-      return 0;
-  }
+//   if (argc >= 2){
+//     if (!enter_number(Nchunks,argv[1],"MB will be processed"))
+//       return 0;
+//   }
+//   if (argc >= 3){
+//     if (!enter_number(Nthreads,argv[2],"Threads will be launched"))
+//       return 0;
+//   }
 
-  if (Nthreads==0){
-    std::cout << "Launching with " << Nchunks << " chunks and no threads\n"; 
-    test_fortranapi(Nchunks);
-  }else{
-    std::cout << "Launching with " << Nchunks << " chunks and " << Nthreads << " threads\n"; 
-    test_parallelization(Nthreads, Nchunks); 
-  }
-  std::cout << "Smallfile test\n";
-  test_smallfile_fortran();
-}
+//   if (Nthreads==0){
+//     std::cout << "Launching with " << Nchunks << " chunks and no threads\n"; 
+//     test_fortranapi(Nchunks);
+//   }else{
+//     std::cout << "Launching with " << Nchunks << " chunks and " << Nthreads << " threads\n"; 
+//     test_parallelization(Nthreads, Nchunks); 
+//   }
+//   std::cout << "Smallfile test\n";
+//   test_smallfile_fortran();
+// }
