@@ -1,2 +1,10 @@
-add_library(iobuf LiFo_policy.cpp  binary_to_ascii.cpp  buffer.cpp  fortranAPI_handler.cpp  fortran_api.cpp  mapper.cpp  testit.cpp)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -D FORBUF_FAST")
+set( IO_BUFFER_SOURCE
+IO_buffer/LiFo_policy.cpp  
+IO_buffer/binary_to_ascii.cpp  
+IO_buffer/buffer.cpp  
+IO_buffer/fortranAPI_handler.cpp  
+IO_buffer/fortran_api.cpp  
+IO_buffer/mapper.cpp  
+IO_buffer/testit.cpp
+PARENT_SCOPE)
+
