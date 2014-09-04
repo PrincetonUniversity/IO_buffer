@@ -23,7 +23,8 @@ LFLAGS= -lpthread
 # uncomment to have fortran code write DEBUG info
 #CFLAGS += -D DEBUG_FORBUF
 
-all:	libforbuf.a binary_to_ascii
+#all:	libforbuf.a binary_to_ascii
+all:    libforbuf.a
 
 binary_to_ascii:	binary_to_ascii.o
 	$(CXX) binary_to_ascii.o -o binary_to_ascii
