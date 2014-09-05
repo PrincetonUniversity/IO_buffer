@@ -3,7 +3,9 @@ module IOBuffer
   use iso_c_binding
 
   interface
-     subroutine for_double_buf_openfile(pool_id, unit_num, filename, filename_length) bind(c)
+
+     subroutine for_double_buf_openfile(pool_id, unit_num, filename, filename_length) &
+          & bind(c,name='for_double_buf_openfile')
        use iso_c_binding
        implicit none
        integer(kind=C_INT64_T), intent(in) :: pool_id
@@ -11,18 +13,17 @@ module IOBuffer
        character(kind=c_char), intent(in) :: filename(*)
        integer(kind=C_INT64_T), intent(in) :: filename_length
      end subroutine for_double_buf_openfile
-  end interface
 
-  interface
      subroutine for_double_buf_construct(maxmem, blocksize, &
           & storagepolicy, nthread, pool_id) &
-          & bind(c)
+          & bind(c,name='for_double_buf_construct')
        use iso_c_binding
        implicit none
        integer(kind=C_INT64_T), intent(in) :: maxmem
        integer(kind=C_INT64_T), intent(in) :: blocksize
        integer(kind=C_INT64_T), intent(in) :: storagepolicy
        integer(kind=C_INT64_T), intent(in) :: nthread
+
        integer(kind=C_INT64_T), intent(out) :: pool_id       
      end subroutine for_double_buf_construct
 
