@@ -5,7 +5,7 @@
 #include <iostream>
 
 extern "C" 
-void for_double_buf_construct_( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id ){
+void for_double_buf_construct( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id ){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_construct\n";
@@ -34,7 +34,7 @@ void for_double_buf_construct_( const FINT& maxmem, const FINT& blocksize, const
 
 }
 
-void for_double_buf_changebuffersize_( const FINT& pool_id,
+void for_double_buf_changebuffersize( const FINT& pool_id,
 				const FINT& maxmem ){
   
 #ifdef DEBUG_FORBUF
@@ -50,7 +50,7 @@ void for_double_buf_changebuffersize_( const FINT& pool_id,
 }
 
 extern "C" 
-void for_double_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length){
+void for_double_buf_openfile( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length){
   
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_openfile\n";
@@ -74,7 +74,7 @@ void for_double_buf_openfile_( const FINT& pool_id, const FINT& unit, const char
 }
 
 extern "C"
-void for_double_buf_reopenfile_( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length){
+void for_double_buf_reopenfile( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length){
   
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_reopenfile\n";
@@ -98,7 +98,7 @@ void for_double_buf_reopenfile_( const FINT& pool_id, const FINT& unit, const ch
 }
 
 extern "C"
-void for_double_buf_writeelement_( const FINT& unit, const FINT& pos, const double& value, const FINT& threadnum){
+void for_double_buf_writeelement( const FINT& unit, const FINT& pos, const double& value, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_writeElement\n";
@@ -114,7 +114,7 @@ void for_double_buf_writeelement_( const FINT& unit, const FINT& pos, const doub
 }
 
 extern "C"
-void for_double_buf_writeblock_( const FINT& unit, const FINT& block, const double* values, const FINT& threadnum){
+void for_double_buf_writeblock( const FINT& unit, const FINT& block, const double* values, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_writeblock\n";
@@ -127,7 +127,7 @@ void for_double_buf_writeblock_( const FINT& unit, const FINT& block, const doub
 }
 
 extern "C"
-void for_double_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& N, const double* values, const FINT& threadnum){
+void for_double_buf_writearray( const FINT& unit, const FINT& pos, const FINT& N, const double* values, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_writeArray\n";
@@ -144,7 +144,7 @@ void for_double_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& 
 }
 
 extern "C"
-void for_double_buf_atomic_add_( const FINT& unit, const FINT& pos, const double& value, const FINT& threadnum){
+void for_double_buf_atomic_add( const FINT& unit, const FINT& pos, const double& value, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_atomic_add\n";
@@ -160,7 +160,7 @@ void for_double_buf_atomic_add_( const FINT& unit, const FINT& pos, const double
 }
 
 extern "C"
-void for_double_buf_atomic_add_array_( const FINT& unit, const FINT& pos, const FINT& N, const double* values, const FINT& threadnum){
+void for_double_buf_atomic_add_array( const FINT& unit, const FINT& pos, const FINT& N, const double* values, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_atomic_add_array\n";
@@ -177,7 +177,7 @@ void for_double_buf_atomic_add_array_( const FINT& unit, const FINT& pos, const 
 }
 
 extern "C"
-void for_double_buf_readelement_( const FINT& unit, const FINT& pos, double& value, const FINT& threadnum){
+void for_double_buf_readelement( const FINT& unit, const FINT& pos, double& value, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_readElement\n";
@@ -197,7 +197,7 @@ void for_double_buf_readelement_( const FINT& unit, const FINT& pos, double& val
 }
 
 extern "C"
-void for_double_buf_readblock_( const FINT& unit, const FINT& block, double* values, const FINT& threadnum){
+void for_double_buf_readblock( const FINT& unit, const FINT& block, double* values, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_readblock\n";
@@ -210,7 +210,7 @@ void for_double_buf_readblock_( const FINT& unit, const FINT& block, double* val
 }
 
 extern "C"
-void for_double_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N, double* values, const FINT& threadnum){
+void for_double_buf_readarray( const FINT& unit, const FINT& pos, const FINT& N, double* values, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_readElement\n";
@@ -264,7 +264,7 @@ void for_double_buf_free_c_pointer( const FINT& unit,
 
 // close file, flush before closing
 extern "C"
-void for_double_buf_closefile_( const FINT& unit){
+void for_double_buf_closefile( const FINT& unit){
   
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_closefile\n";
@@ -278,7 +278,7 @@ void for_double_buf_closefile_( const FINT& unit){
 
 // delete file, free memory, no flush
 extern"C"
-void for_double_buf_removefile_( const FINT& unit){
+void for_double_buf_removefile( const FINT& unit){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_removefile\n";
@@ -292,7 +292,7 @@ void for_double_buf_removefile_( const FINT& unit){
 
 // write all buffers to file
 extern "C"
-void for_double_buf_flushfile_( const FINT& unit){
+void for_double_buf_flushfile( const FINT& unit){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_flushfile\n";
@@ -306,7 +306,7 @@ void for_double_buf_flushfile_( const FINT& unit){
 
 // sync all buffers to file
 extern "C"
-void for_double_buf_syncfile_( const FINT& unit){
+void for_double_buf_syncfile( const FINT& unit){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_syncfile\n";
@@ -320,7 +320,7 @@ void for_double_buf_syncfile_( const FINT& unit){
 
 // sync all buffers to file
 extern "C"
-void for_double_buf_syncpool_( const FINT& pool_id){
+void for_double_buf_syncpool( const FINT& pool_id){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_syncpool\n";
@@ -334,7 +334,7 @@ void for_double_buf_syncpool_( const FINT& pool_id){
 
 // close pool, free all memory, write all buffers to the file
 extern "C" 
-void for_double_buf_closepool_( const FINT& pool_id ){
+void for_double_buf_closepool( const FINT& pool_id ){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_closepool\n";
@@ -350,7 +350,7 @@ void for_double_buf_closepool_( const FINT& pool_id ){
 
 // close pool, free all memory, erase all files
 extern "C" 
-void for_double_buf_removepool_( const FINT& pool_id ){
+void for_double_buf_removepool( const FINT& pool_id ){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_removepool\n";
@@ -364,7 +364,7 @@ void for_double_buf_removepool_( const FINT& pool_id ){
 
 // flush pool
 extern "C"
-void for_double_buf_flushpool_( const FINT& pool_id ){
+void for_double_buf_flushpool( const FINT& pool_id ){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_double_buf_flushpool\n";
@@ -379,7 +379,7 @@ void for_double_buf_flushpool_( const FINT& pool_id ){
 
 
 extern "C" 
-void for_int_buf_construct_( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id ){
+void for_int_buf_construct( const FINT& maxmem, const FINT& blocksize, const FINT& storagepolicy, const FINT& nthread, FINT& pool_id ){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_construct\n";
@@ -399,7 +399,7 @@ void for_int_buf_construct_( const FINT& maxmem, const FINT& blocksize, const FI
 
 }
 
-void for_int_buf_changebuffersize_( const FINT& pool_id,
+void for_int_buf_changebuffersize( const FINT& pool_id,
 				const FINT& maxmem ){
   
 #ifdef DEBUG_FORBUF
@@ -415,7 +415,7 @@ void for_int_buf_changebuffersize_( const FINT& pool_id,
 }
 
 extern "C" 
-void for_int_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length){
+void for_int_buf_openfile( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length){
   
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_openfile\n";
@@ -439,7 +439,7 @@ void for_int_buf_openfile_( const FINT& pool_id, const FINT& unit, const char* f
 }
 
 extern "C"
-void for_int_buf_reopenfile_( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length){
+void for_int_buf_reopenfile( const FINT& pool_id, const FINT& unit, const char* filename, const FINT& length){
   
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_reopenfile\n";
@@ -463,7 +463,7 @@ void for_int_buf_reopenfile_( const FINT& pool_id, const FINT& unit, const char*
 }
 
 extern "C"
-void for_int_buf_writeelement_( const FINT& unit, const FINT& pos, const FINT& value, const FINT& threadnum){
+void for_int_buf_writeelement( const FINT& unit, const FINT& pos, const FINT& value, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_writeElement\n";
@@ -479,7 +479,7 @@ void for_int_buf_writeelement_( const FINT& unit, const FINT& pos, const FINT& v
 }
 
 extern "C"
-void for_int_buf_writeblock_( const FINT& unit, const FINT& block, const FINT* values, const FINT& threadnum){
+void for_int_buf_writeblock( const FINT& unit, const FINT& block, const FINT* values, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_writeblock\n";
@@ -492,7 +492,7 @@ void for_int_buf_writeblock_( const FINT& unit, const FINT& block, const FINT* v
 }
 
 extern "C"
-void for_int_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& N, const FINT* values, const FINT& threadnum){
+void for_int_buf_writearray( const FINT& unit, const FINT& pos, const FINT& N, const FINT* values, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_writeArray\n";
@@ -509,7 +509,7 @@ void for_int_buf_writearray_( const FINT& unit, const FINT& pos, const FINT& N, 
 }
 
 extern "C"
-void for_int_buf_atomic_add_( const FINT& unit, const FINT& pos, const FINT& value, const FINT& threadnum){
+void for_int_buf_atomic_add( const FINT& unit, const FINT& pos, const FINT& value, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_atomic_add\n";
@@ -525,7 +525,7 @@ void for_int_buf_atomic_add_( const FINT& unit, const FINT& pos, const FINT& val
 }
 
 extern "C"
-void for_int_buf_atomic_add_array_( const FINT& unit, const FINT& pos, const FINT& N, const FINT* values, const FINT& threadnum){
+void for_int_buf_atomic_add_array( const FINT& unit, const FINT& pos, const FINT& N, const FINT* values, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_atomic_add_array\n";
@@ -542,7 +542,7 @@ void for_int_buf_atomic_add_array_( const FINT& unit, const FINT& pos, const FIN
 }
 
 extern "C"
-void for_int_buf_readelement_( const FINT& unit, const FINT& pos, FINT& value, const FINT& threadnum){
+void for_int_buf_readelement( const FINT& unit, const FINT& pos, FINT& value, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_readElement\n";
@@ -557,7 +557,7 @@ void for_int_buf_readelement_( const FINT& unit, const FINT& pos, FINT& value, c
 }
 
 extern "C"
-void for_int_buf_readblock_( const FINT& unit, const FINT& block, FINT* values, const FINT& threadnum){
+void for_int_buf_readblock( const FINT& unit, const FINT& block, FINT* values, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_readblock\n";
@@ -570,7 +570,7 @@ void for_int_buf_readblock_( const FINT& unit, const FINT& block, FINT* values, 
 }
 
 extern "C"
-void for_int_buf_readarray_( const FINT& unit, const FINT& pos, const FINT& N, FINT* values, const FINT& threadnum){
+void for_int_buf_readarray( const FINT& unit, const FINT& pos, const FINT& N, FINT* values, const FINT& threadnum){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_readElement\n";
@@ -620,7 +620,7 @@ void for_int_buf_free_c_pointer( const FINT& unit,
 
 // close file, flush before closing
 extern "C"
-void for_int_buf_closefile_( const FINT& unit){
+void for_int_buf_closefile( const FINT& unit){
   
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_closefile\n";
@@ -634,7 +634,7 @@ void for_int_buf_closefile_( const FINT& unit){
 
 // delete file, free memory, no flush
 extern"C"
-void for_int_buf_removefile_( const FINT& unit){
+void for_int_buf_removefile( const FINT& unit){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_removefile\n";
@@ -648,7 +648,7 @@ void for_int_buf_removefile_( const FINT& unit){
 
 // write all buffers to file
 extern "C"
-void for_int_buf_flushfile_( const FINT& unit){
+void for_int_buf_flushfile( const FINT& unit){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_flushfile\n";
@@ -662,7 +662,7 @@ void for_int_buf_flushfile_( const FINT& unit){
 
 // sync all buffers to file
 extern "C"
-void for_int_buf_syncfile_( const FINT& unit){
+void for_int_buf_syncfile( const FINT& unit){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_syncfile\n";
@@ -676,7 +676,7 @@ void for_int_buf_syncfile_( const FINT& unit){
 
 // sync all buffers to file
 extern "C"
-void for_int_buf_syncpool_( const FINT& pool_id){
+void for_int_buf_syncpool( const FINT& pool_id){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_syncpool\n";
@@ -690,7 +690,7 @@ void for_int_buf_syncpool_( const FINT& pool_id){
 
 // close pool, free all memory, write all buffers to the file
 extern "C" 
-void for_int_buf_closepool_( const FINT& pool_id ){
+void for_int_buf_closepool( const FINT& pool_id ){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_closepool\n";
@@ -704,7 +704,7 @@ void for_int_buf_closepool_( const FINT& pool_id ){
 
 // close pool, free all memory, erase all files
 extern "C" 
-void for_int_buf_removepool_( const FINT& pool_id ){
+void for_int_buf_removepool( const FINT& pool_id ){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_removepool\n";
@@ -718,7 +718,7 @@ void for_int_buf_removepool_( const FINT& pool_id ){
 
 // flush pool
 extern "C"
-void for_int_buf_flushpool_( const FINT& pool_id ){
+void for_int_buf_flushpool( const FINT& pool_id ){
 
 #ifdef DEBUG_FORBUF
   std::cout << "Called for_int_buf_flushpool\n";

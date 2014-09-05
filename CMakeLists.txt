@@ -6,5 +6,6 @@ IO_buffer/fortranAPI_handler.cpp
 IO_buffer/fortran_api.cpp  
 IO_buffer/mapper.cpp  
 IO_buffer/testit.cpp
+IO_buffer/IOBuffer.F90
 PARENT_SCOPE)
 
